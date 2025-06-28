@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   FormEventHandler,
   ReactNode,
@@ -90,6 +91,7 @@ export default function Home() {
 
   return (
     <div className="h-screen">
+      <Link href={"testpage"}>To test page</Link>
       <aside className="float-left border-r h-full">Some aside section</aside>
       <main className="flex flex-col h-full">
         <h1>Hello!</h1>
