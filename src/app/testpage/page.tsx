@@ -4,12 +4,17 @@ import { useChat } from "@ai-sdk/react";
 import { useUsage } from "./localStorage.hook";
 import { useState } from "react";
 import { cn } from "@/src/lib/utils";
+import { ModelSelector } from "./components/ModelSelector";
+import { Usage } from "./components/Usage";
+import type { ModelId, Provider } from "../types";
 
 export default function Page() {
   const { usage, setUsage } = useUsage();
   const [assystentDescription, setAssysDescription] = useState<
     string | undefined
   >();
+  const [provider, setProvider] = useState<Provider>("openai");
+  const [model, setModel] = useState<ModelId | undefined>();
 
   const {
     messages,
@@ -19,6 +24,7 @@ export default function Page() {
     status,
     // append,
     setMessages,
+    error,
   } = useChat({
     api: "/test-route",
     onFinish(_, options) {
@@ -28,9 +34,21 @@ export default function Page() {
     // experimental_throttle: 1000,
   });
 
+  if (status === "error") {
+    console.log(error);
+  }
+
   return (
     <div className="px-6">
-      <div className="fixed top-4 right-8">Total used tokens: {usage}</div>
+      {/* <div className="fixed top-4 right-8">Total used tokens: {usage}</div> */}
+      <Usage className="fixed top-4 right-8" />
+      <ModelSelector
+        provider={provider}
+        setProvider={setProvider}
+        className="fixed top-6 left-4"
+        model={model}
+        setModel={setModel}
+      />
       {messages.map((message) => (
         <div
           key={message.id}
@@ -57,11 +75,14 @@ export default function Page() {
         </div>
       ))}
       {status === "submitted" && <div>Loading....</div>}
+      {status === "error" && <p>{error?.message}</p>}
       <form
         onSubmit={(ev) => {
           handleSubmit(ev, {
             body: {
               system: assystentDescription,
+              provider,
+              model,
             },
           });
         }}
@@ -70,7 +91,7 @@ export default function Page() {
           value={input}
           onChange={handleInputChange}
           placeholder="Send a message..."
-          disabled={status !== "ready"}
+          disabled={status === "streaming" || status === "submitted"}
         />
       </form>
       <form

@@ -1,16 +1,24 @@
 import { openai } from "@ai-sdk/openai";
 import { streamText } from "ai";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { getModel } from "./getModel";
 
 export async function POST(request: NextRequest) {
   try {
+    // throw Error("New Test error");
     // console.log("cookies: ", request.cookies);
 
-    const { messages, system } = await request.json();
-    console.log({ messages: JSON.stringify(messages), system });
+    const { messages, system, provider, model: modelId } = await request.json();
+    console.log({
+      // messages: JSON.stringify(messages),
+      system,
+      provider,
+      modelId,
+    });
+    const model = getModel(provider, modelId);
 
     const result = streamText({
-      model: openai("gpt-3.5-turbo"),
+      model,
       ...(system && { system }),
       messages,
       // onFinish: () => {
@@ -19,9 +27,6 @@ export async function POST(request: NextRequest) {
       // onStepFinish: () => {
       //   console.log("Step finished");
       // },
-    });
-    result.steps.then((steps) => {
-      console.log({ steps });
     });
 
     // const textStream = result.textStream;
@@ -33,9 +38,25 @@ export async function POST(request: NextRequest) {
     result.usage.then((usage) => {
       console.log({ usage });
     });
+    result.response.then(({ modelId }) => {
+      console.log({ modelId });
+    });
 
     return result.toDataStreamResponse({ sendUsage: true });
   } catch (error) {
-    return NextResponse.json({ message: "Error", error }, { status: 500 });
+    console.log(error);
+    let message = "Unknown error...";
+    if (error instanceof Error) {
+    }
+    switch (true) {
+      case error instanceof Error:
+        message = error.message;
+        break;
+      case typeof error === "string":
+        message = error;
+        break;
+    }
+
+    return new Response(message, { status: 500 });
   }
 }
