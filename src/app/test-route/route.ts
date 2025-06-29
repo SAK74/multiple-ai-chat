@@ -1,5 +1,4 @@
-import { openai } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import { createDataStream, createDataStreamResponse, streamText } from "ai";
 import { NextRequest } from "next/server";
 import { getModel } from "./getModel";
 
@@ -16,17 +15,32 @@ export async function POST(request: NextRequest) {
       modelId,
     });
     const model = getModel(provider, modelId);
+    // check limit for current IP (if overdraften: break)
 
-    const result = streamText({
-      model,
-      ...(system && { system }),
-      messages,
-      // onFinish: () => {
-      //   console.log("Finish");
-      // },
-      // onStepFinish: () => {
-      //   console.log("Step finished");
-      // },
+    const dataStreamResponse = createDataStreamResponse({
+      execute(dataStream) {
+        dataStream.writeData("Initiate");
+        const result = streamText({
+          model,
+          ...(system && { system }),
+          messages,
+          onFinish: () => {
+            // console.log("Finish");
+            dataStream.writeData("Finished");
+          },
+          // onStepFinish: () => {
+          //   console.log("Step finished");
+          // },
+        });
+        result.usage.then((usage) => {
+          console.log({ usage });
+        });
+        result.response.then(({ modelId }) => {
+          console.log({ modelId });
+        });
+
+        result.mergeIntoDataStream(dataStream);
+      },
     });
 
     // const textStream = result.textStream;
@@ -35,14 +49,14 @@ export async function POST(request: NextRequest) {
     // result.text.then((text) => {
     //   console.log({ text });
     // });
-    result.usage.then((usage) => {
-      console.log({ usage });
-    });
-    result.response.then(({ modelId }) => {
-      console.log({ modelId });
+
+    const data = createDataStream({
+      execute(dataStream) {
+        dataStream.writeData({ myData: "Example" });
+      },
     });
 
-    return result.toDataStreamResponse({ sendUsage: true });
+    return dataStreamResponse;
   } catch (error) {
     console.log(error);
     let message = "Unknown error...";

@@ -2,7 +2,7 @@
 
 import { useChat } from "@ai-sdk/react";
 import { useUsage } from "./localStorage.hook";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/src/lib/utils";
 import { ModelSelector } from "./components/ModelSelector";
 import { Usage } from "./components/Usage";
@@ -25,6 +25,8 @@ export default function Page() {
     // append,
     setMessages,
     error,
+    data,
+    setData,
   } = useChat({
     api: "/test-route",
     onFinish(_, options) {
@@ -32,7 +34,16 @@ export default function Page() {
     },
     // initialMessages:[]
     // experimental_throttle: 1000,
+    body: {
+      system: assystentDescription,
+      provider,
+      model,
+    },
   });
+
+  useEffect(() => {
+    console.log({ data: data?.at(-1) });
+  }, [data?.length]);
 
   if (status === "error") {
     console.log(error);
@@ -78,13 +89,8 @@ export default function Page() {
       {status === "error" && <p>{error?.message}</p>}
       <form
         onSubmit={(ev) => {
-          handleSubmit(ev, {
-            body: {
-              system: assystentDescription,
-              provider,
-              model,
-            },
-          });
+          setData(undefined);
+          handleSubmit(ev);
         }}
       >
         <input
