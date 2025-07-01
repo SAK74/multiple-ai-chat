@@ -1,14 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  FormEventHandler,
-  ReactNode,
-  Ref,
-  RefCallback,
-  useEffect,
-  useState,
-} from "react";
+import { FormEventHandler, ReactNode, RefCallback, useState } from "react";
 
 export default function Home() {
   const [blocks, setBlocks] = useState<ReactNode[]>([]);

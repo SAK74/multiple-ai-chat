@@ -1,5 +1,5 @@
 import { cn } from "@/src/lib/utils";
-import { FC } from "react";
+import { type FC } from "react";
 import { useUsage } from "../localStorage.hook";
 
 export const Usage: FC<{ className?: string }> = ({ className }) => {

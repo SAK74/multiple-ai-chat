@@ -1,4 +1,4 @@
-import { createDataStream, createDataStreamResponse, streamText } from "ai";
+import { createDataStreamResponse, streamText } from "ai";
 import { NextRequest } from "next/server";
 import { getModel } from "./getModel";
 
@@ -49,12 +49,6 @@ export async function POST(request: NextRequest) {
     // result.text.then((text) => {
     //   console.log({ text });
     // });
-
-    const data = createDataStream({
-      execute(dataStream) {
-        dataStream.writeData({ myData: "Example" });
-      },
-    });
 
     return dataStreamResponse;
   } catch (error) {

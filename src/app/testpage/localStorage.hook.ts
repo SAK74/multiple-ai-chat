@@ -38,7 +38,7 @@ const CHAT_USAGE_KEY = "chat-usage";
 export const useUsage = () => {
   const [storageString, setStorage] = useLocalStorage(CHAT_USAGE_KEY);
   return {
-    usage: storageString ? Number(storageString) : undefined,
+    usage: Number(storageString ? storageString : "0"),
     setUsage: (value: number) => {
       setStorage(value.toString());
     },

@@ -2,7 +2,7 @@ import { openai } from "@ai-sdk/openai";
 import { streamText } from "ai";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(request: NextRequest, { params }: any) {
+export async function POST(request: NextRequest) {
   try {
     // const chunksLenght = 10;
     // let timeout: NodeJS.Timeout;
