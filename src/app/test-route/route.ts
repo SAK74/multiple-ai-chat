@@ -1,21 +1,34 @@
-import { createDataStreamResponse, streamText } from "ai";
+import { createDataStreamResponse, Message, streamText } from "ai";
 import { NextRequest } from "next/server";
 import { getModel } from "./getModel";
+import { Provider } from "../types";
 
 export async function POST(request: NextRequest) {
   try {
     // throw Error("New Test error");
     // console.log("cookies: ", request.cookies);
 
-    const { messages, system, provider, model: modelId } = await request.json();
+    const {
+      messages,
+      system,
+      provider,
+      model: modelId,
+      apiKey,
+    } = (await request.json()) as {
+      messages: Message[];
+      system?: string;
+      provider?: Provider;
+      model?: string;
+      apiKey?: string;
+    };
     console.log({
       // messages: JSON.stringify(messages),
       system,
       provider,
       modelId,
+      apiKey,
     });
-    const model = getModel(provider, modelId);
-    // check limit for current IP (if overdraften: break)
+    const model = getModel({ provider, modelId, apiKey });
 
     const dataStreamResponse = createDataStreamResponse({
       execute(dataStream) {
@@ -40,6 +53,18 @@ export async function POST(request: NextRequest) {
         });
 
         result.mergeIntoDataStream(dataStream);
+      },
+      onError(error) {
+        if (error instanceof Error) {
+          return error.message;
+        }
+        if (typeof error === "string") {
+          return error;
+        }
+        if (error == null) {
+          return "Unknown error...";
+        }
+        return JSON.stringify(error);
       },
     });
 

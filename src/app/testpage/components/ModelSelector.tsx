@@ -34,7 +34,8 @@ export const ModelSelector: FC<{
   className?: string;
   model?: ModelId;
   setModel: (model: ModelId) => void;
-}> = ({ className, provider, setProvider, model, setModel }) => {
+  isActive: boolean;
+}> = ({ className, provider, setProvider, model, setModel, isActive }) => {
   let models: ModelId[] = [];
   switch (provider) {
     case "openai":
@@ -52,6 +53,7 @@ export const ModelSelector: FC<{
         onChange={({ target: { value } }) => {
           setProvider(value as Provider);
         }}
+        disabled={!isActive}
       >
         {providers.map((name) => (
           <option key={name}>{name}</option>
@@ -63,6 +65,7 @@ export const ModelSelector: FC<{
         onChange={({ target: { value } }) => {
           setModel(value as ModelId);
         }}
+        disabled={!isActive}
       >
         {models.map((model) => (
           <option key={model} value={model}>
