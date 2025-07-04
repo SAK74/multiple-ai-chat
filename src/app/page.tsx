@@ -2,12 +2,20 @@
 
 import { useChat } from "@ai-sdk/react";
 import { useUsage } from "./_components/localStorage.hook";
-import { useEffect, useMemo, useState, type FormEventHandler } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEventHandler,
+} from "react";
 import { ModelSelector } from "./_components/ModelSelector";
 import { Usage } from "./_components/Usage";
 import type { ModelId, Provider } from "./types";
 import "highlight.js/styles/default.css";
 import { RenderMessages } from "./_components/RenderMessages";
+import { ControllPanel } from "./_components/Controll";
+import { Textarea } from "../components/ui/textarea";
 
 export default function Page() {
   const { usage, setUsage } = useUsage();
@@ -50,10 +58,10 @@ export default function Page() {
     },
   });
 
-  // const bottomRef = useRef<HTMLDivElement>(null);
-  // useEffect(() => {
-  //   bottomRef.current?.scrollIntoView();
-  // }, [messages]);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView();
+  }, [messages]);
 
   const onQuerySubmit: FormEventHandler = (ev) => {
     if (!isActive) {
@@ -68,21 +76,18 @@ export default function Page() {
 
   return (
     <div className="px-6">
-      {!apiKey && <Usage className="fixed left-4 top-16" />}
-      <ModelSelector
-        provider={provider}
-        setProvider={setProvider}
-        className="fixed top-6 left-4"
-        model={model}
-        setModel={setModel}
-        isActive={isActive}
-      />
+      <ControllPanel className="py-3">
+        {!apiKey && <Usage className="" />}
+      </ControllPanel>
       <RenderMessages messages={messages} />
-      {/* <div ref={bottomRef} /> */}
+      <div ref={bottomRef} />
       {status === "submitted" && <div>Loading....</div>}
-      {status === "error" && <p>{error?.message}</p>}
-      <form onSubmit={onQuerySubmit}>
-        <textarea
+      {status === "error" && (
+        <p className="text-destructive/85">{error?.message}</p>
+      )}
+      <form onSubmit={onQuerySubmit} className="relative w-4/5 mx-auto">
+        <Textarea
+          className="pb-8"
           value={input}
           onChange={handleInputChange}
           placeholder="Send a message..."
@@ -96,6 +101,17 @@ export default function Page() {
               ev.currentTarget.form?.requestSubmit();
             }
           }}
+          ref={(input) => {
+            input?.focus();
+          }}
+        />
+        <ModelSelector
+          provider={provider}
+          setProvider={setProvider}
+          className="absolute left-3 -bottom-3 z-10 bg-accent border rounded-lg px-3"
+          model={model}
+          setModel={setModel}
+          isActive={isActive}
         />
       </form>
       <form
@@ -115,10 +131,8 @@ export default function Page() {
             ev.currentTarget.form?.requestSubmit();
           }}
           onKeyDown={(ev) => {
-            // console.log({ key });
             const { key, shiftKey, altKey, ctrlKey } = ev;
             if (key === "Enter" && !shiftKey && !altKey && !ctrlKey) {
-              // console.log(ev.currentTarget.form);
               ev.preventDefault();
               ev.currentTarget.form?.requestSubmit();
             }

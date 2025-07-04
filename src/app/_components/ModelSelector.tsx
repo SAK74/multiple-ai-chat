@@ -3,6 +3,7 @@ import { ModelId, type Provider } from "../types";
 import { cn } from "@/src/lib/utils";
 import type { OpenAIChatModelId } from "@ai-sdk/openai/internal";
 import type { AnthropicMessagesModelId } from "@ai-sdk/anthropic/internal";
+import { Select } from "@/src/components/Select";
 
 const providers: Provider[] = ["openai", "anthropic"];
 
@@ -28,51 +29,45 @@ const anthropicModels: AnthropicMessagesModelId[] = [
   "claude-3-opus-latest",
 ];
 
+const models: {
+  [k in Provider]: (OpenAIChatModelId | AnthropicMessagesModelId)[];
+} = {
+  openai: openAiModels,
+  anthropic: anthropicModels,
+};
+
 export const ModelSelector: FC<{
   provider: Provider;
   setProvider: (provider: Provider) => void;
   className?: string;
   model?: ModelId;
-  setModel: (model: ModelId) => void;
+  setModel: (model?: ModelId) => void;
   isActive: boolean;
 }> = ({ className, provider, setProvider, model, setModel, isActive }) => {
-  let models: ModelId[] = [];
-  switch (provider) {
-    case "openai":
-      models = openAiModels;
-      break;
-    case "anthropic":
-      models = anthropicModels;
-      break;
-  }
   return (
-    <div className={cn("", className)}>
-      <select
-        className="capitalize"
+    <div className={cn("flex gap-2", className)}>
+      <Select
+        className="border-none bg-accent dark:bg-accent"
+        optionsClassName="capitalize"
         value={provider}
-        onChange={({ target: { value } }) => {
+        options={providers}
+        onChange={(value) => {
           setProvider(value as Provider);
         }}
         disabled={!isActive}
-      >
-        {providers.map((name) => (
-          <option key={name}>{name}</option>
-        ))}
-      </select>
+        size="sm"
+      />
 
-      <select
-        value={model}
-        onChange={({ target: { value } }) => {
-          setModel(value as ModelId);
+      <Select
+        value={models[provider].includes(model!) ? model : undefined}
+        onChange={(value) => {
+          setModel(value ? (value as ModelId) : undefined);
         }}
         disabled={!isActive}
-      >
-        {models.map((model) => (
-          <option key={model} value={model}>
-            {model}
-          </option>
-        ))}
-      </select>
+        options={models[provider]}
+        size="sm"
+        className="border-none bg-accent dark:bg-accent"
+      />
     </div>
   );
 };
