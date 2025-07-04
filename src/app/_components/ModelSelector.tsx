@@ -1,5 +1,5 @@
 import { type FC } from "react";
-import { ModelId, type Provider } from "../../types";
+import { ModelId, type Provider } from "../types";
 import { cn } from "@/src/lib/utils";
 import type { OpenAIChatModelId } from "@ai-sdk/openai/internal";
 import type { AnthropicMessagesModelId } from "@ai-sdk/anthropic/internal";

@@ -1,7 +1,7 @@
 import { createDataStreamResponse, Message, streamText } from "ai";
 import { NextRequest } from "next/server";
 import { getModel } from "./getModel";
-import { Provider } from "../types";
+import { Provider } from "../../types";
 
 export async function POST(request: NextRequest) {
   try {

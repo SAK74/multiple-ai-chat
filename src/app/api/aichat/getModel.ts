@@ -1,7 +1,7 @@
 import { openai, createOpenAI } from "@ai-sdk/openai";
 import { type LanguageModel } from "ai";
 import { anthropic, createAnthropic } from "@ai-sdk/anthropic";
-import { type Provider } from "../types";
+import { type Provider } from "../../types";
 
 export type GetModelParams = {
   provider?: Provider;
