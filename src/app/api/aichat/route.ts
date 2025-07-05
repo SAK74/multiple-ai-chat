@@ -33,12 +33,13 @@ export async function POST(request: NextRequest) {
     const dataStreamResponse = createDataStreamResponse({
       execute(dataStream) {
         dataStream.writeData("Initiate");
+        dataStream.writeMessageAnnotation({ provider: provider ?? "" });
+
         const result = streamText({
           model,
           ...(system && { system }),
           messages,
           onFinish: () => {
-            // console.log("Finish");
             dataStream.writeData("Finished");
           },
           // onStepFinish: () => {
