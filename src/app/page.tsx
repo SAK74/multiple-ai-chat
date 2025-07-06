@@ -12,10 +12,16 @@ import {
 import { ModelSelector } from "./_components/ModelSelector";
 import { Usage } from "./_components/Usage";
 import type { ModelId, Provider } from "./types";
-import "highlight.js/styles/default.css";
 import { RenderMessages } from "./_components/RenderMessages";
 import { ControllPanel } from "./_components/Controll";
 import { Textarea } from "../components/ui/textarea";
+import {
+  BrushCleaningIcon,
+  RefreshCcwIcon,
+  SendHorizonalIcon,
+} from "lucide-react";
+import { Button } from "../components/ui/button";
+import { Tooltip } from "../components/Tooltip";
 
 export default function Page() {
   const { usage, setUsage } = useUsage();
@@ -49,7 +55,6 @@ export default function Page() {
       setUsage(usage + options.usage.totalTokens);
       // bottomRef.current?.scrollIntoView();
     },
-    // initialMessages:[]
     body: {
       system: assystentDescription,
       provider,
@@ -85,18 +90,16 @@ export default function Page() {
       {status === "error" && (
         <p className="text-destructive/85">{error?.message}</p>
       )}
-      <form onSubmit={onQuerySubmit} className="relative w-4/5 mx-auto">
+      <form onSubmit={onQuerySubmit} className="relative max-w-3/5 mx-auto">
         <Textarea
-          className="pb-8"
+          className="pb-8 pr-10"
           value={input}
           onChange={handleInputChange}
           placeholder="Send a message..."
           disabled={status === "streaming" || status === "submitted"}
           onKeyDown={(ev) => {
-            // console.log({ key });
             const { key, shiftKey, altKey, ctrlKey } = ev;
             if (key === "Enter" && !shiftKey && !altKey && !ctrlKey) {
-              // console.log(ev.currentTarget.form);
               ev.preventDefault();
               ev.currentTarget.form?.requestSubmit();
             }
@@ -108,11 +111,37 @@ export default function Page() {
         <ModelSelector
           provider={provider}
           setProvider={setProvider}
-          className="absolute left-3 -bottom-3 z-10 bg-accent border rounded-lg px-3"
+          className="absolute left-3 -bottom-3 z-10 bg-accent rounded-2xl border px-3"
           model={model}
           setModel={setModel}
           isActive={isActive}
         />
+        <Button
+          variant={"ghost"}
+          size={"icon"}
+          className="absolute right-3 bottom-7 cursor-pointer"
+        >
+          <SendHorizonalIcon className="size-6" />
+        </Button>
+
+        <div className="flex gap-4 absolute right-3 -bottom-3 z-10 bg-accent border rounded-lg px-5 py-2 *:cursor-pointer">
+          <Tooltip label="Reload">
+            <RefreshCcwIcon
+              size={20}
+              onClick={() => {
+                reload();
+              }}
+            />
+          </Tooltip>
+          <Tooltip label="Clear the chat history">
+            <BrushCleaningIcon
+              size={20}
+              onClick={() => {
+                setMessages([]);
+              }}
+            />
+          </Tooltip>
+        </div>
       </form>
       <form
         onSubmit={(ev) => {
@@ -148,14 +177,6 @@ export default function Page() {
           setApiKey(value);
         }}
       />
-      <button onClick={() => reload()}>Reload</button>
-      <button
-        onClick={() => {
-          setMessages([]);
-        }}
-      >
-        Clear chat history
-      </button>
     </div>
   );
 }

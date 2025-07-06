@@ -29,7 +29,7 @@ export const RenderMessages: FC<{ messages: UIMessage[] }> = ({ messages }) => {
             typeof adnot === "object" &&
             adnot !== null &&
             "provider" in adnot &&
-            typeof (adnot as any).provider === "string"
+            typeof (adnot as { provider: Provider }).provider === "string"
         )?.provider;
         return (
           <div
@@ -45,7 +45,7 @@ export const RenderMessages: FC<{ messages: UIMessage[] }> = ({ messages }) => {
                 alt="provider_logo"
                 width={25}
                 height={25}
-                className={cn("", logos[provider].className)}
+                className={cn("self-start mt-6", logos[provider].className)}
               />
             )}
 
@@ -53,7 +53,8 @@ export const RenderMessages: FC<{ messages: UIMessage[] }> = ({ messages }) => {
               className={cn(
                 "rounded-lg border border-dotted p-2 text-left overflow-x-auto max-w-11/12",
                 {
-                  "border-solid bg-gray-300 max-w-1/2": message.role === "user",
+                  "border-solid bg-gray-300 max-w-1/2 dark:bg-gray-600":
+                    message.role === "user",
                 }
               )}
             >
