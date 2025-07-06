@@ -37,13 +37,20 @@ const models: {
 };
 
 export const ModelSelector: FC<{
-  provider: Provider;
+  provider?: Provider;
   setProvider: (provider: Provider) => void;
   className?: string;
   model?: ModelId;
   setModel: (model?: ModelId) => void;
   isActive: boolean;
-}> = ({ className, provider, setProvider, model, setModel, isActive }) => {
+}> = ({
+  className,
+  provider = Object.keys(models)[0] as Provider,
+  setProvider,
+  model,
+  setModel,
+  isActive,
+}) => {
   return (
     <div className={cn("flex gap-2", className)}>
       <Select

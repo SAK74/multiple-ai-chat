@@ -9,29 +9,21 @@ import {
   useState,
   type FormEventHandler,
 } from "react";
-import { ModelSelector } from "./_components/ModelSelector";
 import { Usage } from "./_components/Usage";
 import type { ModelId, Provider } from "./types";
 import { RenderMessages } from "./_components/RenderMessages";
 import { ControllPanel } from "./_components/Controll";
-import { Textarea } from "../components/ui/textarea";
-import {
-  BanIcon,
-  BrushCleaningIcon,
-  RefreshCcwIcon,
-  SendHorizonalIcon,
-} from "lucide-react";
-import { Button } from "../components/ui/button";
-import { Tooltip } from "../components/Tooltip";
+
 import { TOKENS_LIMIT } from "./_constants";
 import { showOverdraft } from "./_tools/overdraftMessage";
+import { PromtForm } from "./_components/PromptForm";
 
 export default function Page() {
   const { usage, setUsage } = useUsage();
   const [assystentDescription, setAssysDescription] = useState<
     string | undefined
   >();
-  const [provider, setProvider] = useState<Provider>("openai");
+  const [provider, setProvider] = useState<Provider>();
   const [model, setModel] = useState<ModelId | undefined>();
   const [apiKey, setApiKey] = useState<string | undefined>();
 
@@ -40,19 +32,7 @@ export default function Page() {
     [usage, apiKey]
   );
 
-  const {
-    messages,
-    handleSubmit,
-    input,
-    handleInputChange,
-    status,
-    setMessages,
-    error,
-    // data,
-    // setData,
-    reload,
-    stop,
-  } = useChat({
+  const chat = useChat({
     api: "/api/aichat",
     onFinish(_, options) {
       const summary = usage + options.usage.totalTokens;
@@ -70,6 +50,7 @@ export default function Page() {
     },
   });
 
+  const { messages, handleSubmit, setMessages, error, status } = chat;
   const bottomRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     bottomRef.current?.scrollIntoView();
@@ -96,76 +77,18 @@ export default function Page() {
       {status === "error" && (
         <p className="text-destructive/85">{error?.message}</p>
       )}
-      <form onSubmit={onQuerySubmit} className="relative max-w-3/5 mx-auto">
-        <Textarea
-          className="pb-8 pr-10"
-          value={input}
-          onChange={handleInputChange}
-          placeholder="Send a message..."
-          disabled={status === "streaming" || status === "submitted"}
-          onKeyDown={(ev) => {
-            const { key, shiftKey, altKey, ctrlKey } = ev;
-            if (key === "Enter" && !shiftKey && !altKey && !ctrlKey) {
-              ev.preventDefault();
-              ev.currentTarget.form?.requestSubmit();
-            }
-          }}
-          ref={(input) => {
-            input?.focus();
-          }}
-        />
-        <ModelSelector
-          provider={provider}
-          setProvider={setProvider}
-          className="absolute left-3 -bottom-3 z-10 bg-accent rounded-2xl border px-3"
-          model={model}
-          setModel={setModel}
-          isActive={isActive}
-        />
-        <Button
-          variant={"ghost"}
-          size={"icon"}
-          className="absolute right-3 bottom-7 cursor-pointer"
-        >
-          <SendHorizonalIcon className="size-6" />
-        </Button>
 
-        <div className="flex gap-4 absolute right-3 -bottom-3 z-10 bg-accent border rounded-lg px-5 py-2 *:cursor-pointer *:size-6">
-          <Tooltip
-            label="Reload"
-            onClick={() => {
-              reload();
-            }}
-            disabled={status === "streaming" || status === "submitted"}
-          >
-            <Button size={"icon"} variant={"ghost"}>
-              <RefreshCcwIcon />
-            </Button>
-          </Tooltip>
-          <Tooltip
-            label="Stop rendering"
-            onClick={() => {
-              stop();
-            }}
-            disabled={status !== "submitted"}
-          >
-            <Button size={"icon"} variant={"ghost"}>
-              <BanIcon />
-            </Button>
-          </Tooltip>
-          <Tooltip
-            label="Clear the chat history"
-            onClick={() => {
-              setMessages([]);
-            }}
-            disabled={status !== "ready"}
-          >
-            <Button size={"icon"} variant={"ghost"}>
-              <BrushCleaningIcon />
-            </Button>
-          </Tooltip>
-        </div>
-      </form>
+      <PromtForm
+        {...{
+          ...chat,
+          provider,
+          setProvider,
+          model,
+          setModel,
+          isActive,
+          onQuerySubmit,
+        }}
+      />
       <form
         onSubmit={(ev) => {
           ev.preventDefault();

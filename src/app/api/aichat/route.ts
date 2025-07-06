@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const {
       messages,
       system,
-      provider,
+      provider = "openai",
       model: modelId,
       apiKey,
     } = (await request.json()) as {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const dataStreamResponse = createDataStreamResponse({
       execute(dataStream) {
         dataStream.writeData("Initiate");
-        dataStream.writeMessageAnnotation({ provider: provider ?? "" });
+        dataStream.writeMessageAnnotation({ provider });
 
         const result = streamText({
           model,
