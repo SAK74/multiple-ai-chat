@@ -11,12 +11,12 @@ export const ControllPanel: FC<PropsWithChildren<{ className?: string }>> = ({
   return (
     <div
       className={cn(
-        "flex text-right justify-between mr-4 items-center cursor-pointer sticky top-0",
+        "flex text-right justify-between mr-4 items-center sticky top-0",
         className
       )}
     >
       <div>{children}</div>
-      <div className="flex items-center">
+      <div className="flex items-center cursor-pointer">
         <ThemeChanger />
         <SettingsIcon />
         <Avatar />

@@ -16,12 +16,15 @@ import { RenderMessages } from "./_components/RenderMessages";
 import { ControllPanel } from "./_components/Controll";
 import { Textarea } from "../components/ui/textarea";
 import {
+  BanIcon,
   BrushCleaningIcon,
   RefreshCcwIcon,
   SendHorizonalIcon,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Tooltip } from "../components/Tooltip";
+import { TOKENS_LIMIT } from "./_constants";
+import { showOverdraft } from "./_tools/overdraftMessage";
 
 export default function Page() {
   const { usage, setUsage } = useUsage();
@@ -33,7 +36,7 @@ export default function Page() {
   const [apiKey, setApiKey] = useState<string | undefined>();
 
   const isActive = useMemo(
-    () => usage < 2000 || Boolean(apiKey),
+    () => usage < TOKENS_LIMIT || Boolean(apiKey),
     [usage, apiKey]
   );
 
@@ -43,16 +46,20 @@ export default function Page() {
     input,
     handleInputChange,
     status,
-    // append,
     setMessages,
     error,
     // data,
     // setData,
     reload,
+    stop,
   } = useChat({
     api: "/api/aichat",
     onFinish(_, options) {
-      setUsage(usage + options.usage.totalTokens);
+      const summary = usage + options.usage.totalTokens;
+      setUsage(summary);
+      if (summary >= TOKENS_LIMIT) {
+        showOverdraft();
+      }
       // bottomRef.current?.scrollIntoView();
     },
     body: {
@@ -71,8 +78,7 @@ export default function Page() {
   const onQuerySubmit: FormEventHandler = (ev) => {
     if (!isActive) {
       ev.preventDefault();
-      // show appropriate message
-      window.alert("You have reached tokens limit, provide your api_key!");
+      showOverdraft();
       return;
     }
     handleSubmit(ev);
@@ -84,8 +90,8 @@ export default function Page() {
       <ControllPanel className="py-3">
         {!apiKey && <Usage className="" />}
       </ControllPanel>
-      <RenderMessages messages={messages} />
-      <div ref={bottomRef} />
+      <RenderMessages messages={messages} setMessages={setMessages} />
+      <div ref={bottomRef} className="h-4" />
       {status === "submitted" && <div>Loading....</div>}
       {status === "error" && (
         <p className="text-destructive/85">{error?.message}</p>
@@ -124,22 +130,39 @@ export default function Page() {
           <SendHorizonalIcon className="size-6" />
         </Button>
 
-        <div className="flex gap-4 absolute right-3 -bottom-3 z-10 bg-accent border rounded-lg px-5 py-2 *:cursor-pointer">
-          <Tooltip label="Reload">
-            <RefreshCcwIcon
-              size={20}
-              onClick={() => {
-                reload();
-              }}
-            />
+        <div className="flex gap-4 absolute right-3 -bottom-3 z-10 bg-accent border rounded-lg px-5 py-2 *:cursor-pointer *:size-6">
+          <Tooltip
+            label="Reload"
+            onClick={() => {
+              reload();
+            }}
+            disabled={status === "streaming" || status === "submitted"}
+          >
+            <Button size={"icon"} variant={"ghost"}>
+              <RefreshCcwIcon />
+            </Button>
           </Tooltip>
-          <Tooltip label="Clear the chat history">
-            <BrushCleaningIcon
-              size={20}
-              onClick={() => {
-                setMessages([]);
-              }}
-            />
+          <Tooltip
+            label="Stop rendering"
+            onClick={() => {
+              stop();
+            }}
+            disabled={status !== "submitted"}
+          >
+            <Button size={"icon"} variant={"ghost"}>
+              <BanIcon />
+            </Button>
+          </Tooltip>
+          <Tooltip
+            label="Clear the chat history"
+            onClick={() => {
+              setMessages([]);
+            }}
+            disabled={status !== "ready"}
+          >
+            <Button size={"icon"} variant={"ghost"}>
+              <BrushCleaningIcon />
+            </Button>
           </Tooltip>
         </div>
       </form>

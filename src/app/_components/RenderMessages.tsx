@@ -1,5 +1,5 @@
 import { cn } from "@/src/lib/utils";
-import type { UIMessage } from "ai";
+import type { Message, UIMessage } from "ai";
 import type { FC } from "react";
 import Markdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
@@ -9,6 +9,8 @@ import type { Provider } from "../types";
 import claudeLogo from "@/src/assets/claude-ai.svg";
 import gptLogo from "@/src/assets/chatgpt.svg";
 import Image from "next/image";
+import { PencilIcon, Trash2Icon } from "lucide-react";
+import { Tooltip } from "@/src/components/Tooltip";
 
 const logos: {
   [k in Provider]: {
@@ -20,7 +22,20 @@ const logos: {
   anthropic: { icon: claudeLogo },
 };
 
-export const RenderMessages: FC<{ messages: UIMessage[] }> = ({ messages }) => {
+type RenderMessagesProps = {
+  messages: UIMessage[];
+  setMessages: (
+    messages: Message[] | ((messages: Message[]) => Message[])
+  ) => void;
+};
+
+export const RenderMessages: FC<RenderMessagesProps> = ({
+  messages,
+  setMessages,
+}) => {
+  const deleteMessage = (id: Message["id"]) => {
+    setMessages(messages.filter((mess) => mess.id !== id));
+  };
   return (
     <>
       {messages.map((message) => {
@@ -45,13 +60,12 @@ export const RenderMessages: FC<{ messages: UIMessage[] }> = ({ messages }) => {
                 alt="provider_logo"
                 width={25}
                 height={25}
-                className={cn("self-start mt-6", logos[provider].className)}
+                className={cn("self-start mt-3", logos[provider].className)}
               />
             )}
-
             <div
               className={cn(
-                "rounded-lg border border-dotted p-2 text-left overflow-x-auto max-w-11/12",
+                "rounded-lg border border-foreground border-dotted p-2 text-left overflow-x-auto max-w-11/12",
                 {
                   "border-solid bg-gray-300 max-w-1/2 dark:bg-gray-600":
                     message.role === "user",
@@ -78,6 +92,21 @@ export const RenderMessages: FC<{ messages: UIMessage[] }> = ({ messages }) => {
                 }
               })}
             </div>
+            <span className="*:size-4 *:cursor-pointer">
+              {message.role === "user" && (
+                <Tooltip label="Edit message">
+                  <PencilIcon />
+                </Tooltip>
+              )}
+              <Tooltip
+                label="Remove message from the chat"
+                onClick={() => {
+                  deleteMessage(message.id);
+                }}
+              >
+                <Trash2Icon />
+              </Tooltip>
+            </span>
           </div>
         );
       })}
