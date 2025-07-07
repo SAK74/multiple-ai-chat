@@ -3,11 +3,12 @@ import type { FC, PropsWithChildren } from "react";
 import { SettingsIcon } from "lucide-react";
 import { ThemeChanger } from "./ThemeChanger";
 import { Avatar } from "@/src/components/Avatar";
+import { SetupForm, SetupProps } from "./SetupForm";
+import { Button } from "@/src/components/ui/button";
 
-export const ControllPanel: FC<PropsWithChildren<{ className?: string }>> = ({
-  className,
-  children,
-}) => {
+export const ControllPanel: FC<
+  PropsWithChildren<{ className?: string } & SetupProps>
+> = ({ className, children, setApiKey, apiKey }) => {
   return (
     <div
       className={cn(
@@ -16,9 +17,13 @@ export const ControllPanel: FC<PropsWithChildren<{ className?: string }>> = ({
       )}
     >
       <div>{children}</div>
-      <div className="flex items-center cursor-pointer">
+      <div className="flex items-center *:cursor-pointer">
         <ThemeChanger />
-        <SettingsIcon />
+        <SetupForm {...{ apiKey, setApiKey }}>
+          <Button variant={"ghost"} size={"icon"}>
+            <SettingsIcon className="size-6" />
+          </Button>
+        </SetupForm>
         <Avatar />
       </div>
     </div>

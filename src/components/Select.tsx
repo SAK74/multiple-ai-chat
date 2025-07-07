@@ -11,7 +11,7 @@ import { cn } from "../lib/utils";
 type SelectProps = Omit<ComponentPropsWithRef<"button">, "value"> & {
   value?: string;
   onChange: (value: string) => void;
-  size?: "sm" | "default";
+  size?: "sm" | "default" | "xs";
   options: string[];
   optionsClassName?: string;
 };

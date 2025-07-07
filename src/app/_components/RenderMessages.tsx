@@ -60,7 +60,7 @@ export const RenderMessages: FC<RenderMessagesProps> = ({
                 alt="provider_logo"
                 width={25}
                 height={25}
-                className={cn("self-start mt-3", logos[provider].className)}
+                className={cn("self-start mt-2", logos[provider].className)}
               />
             )}
             <div
