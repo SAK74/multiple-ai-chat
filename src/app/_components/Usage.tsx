@@ -1,6 +1,6 @@
 import { cn } from "@/src/lib/utils";
 import { type FC } from "react";
-import { useUsage } from "./localStorage.hook";
+import { useUsage } from "./hooks/localStorage.hook";
 import { Progress } from "@/src/components/ui/progress";
 import { TOKENS_LIMIT } from "../_constants";
 

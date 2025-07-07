@@ -56,7 +56,7 @@ export const PromtForm: FC<PromtFormProps> = ({
       <ModelSelector
         provider={provider}
         setProvider={setProvider}
-        className="absolute left-3 -bottom-3 z-10 bg-accent rounded-2xl border px-3"
+        className="absolute left-3 -bottom-3 z-10 bg-accent rounded-lg border px-3"
         model={model}
         setModel={setModel}
         isActive={isActive}
@@ -69,7 +69,7 @@ export const PromtForm: FC<PromtFormProps> = ({
         <SendHorizonalIcon className="size-6" />
       </Button>
 
-      <div className="flex gap-4 absolute right-3 -bottom-3 z-10 bg-accent border rounded-lg px-5 py-2 *:cursor-pointer *:size-6">
+      <div className="flex gap-4 absolute right-3 -bottom-3 z-10 bg-accent border rounded-lg px-5 *:cursor-pointer *:size-6">
         {reload && (
           <Tooltip
             label="Reload"

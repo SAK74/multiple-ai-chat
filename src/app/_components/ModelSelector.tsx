@@ -62,7 +62,7 @@ export const ModelSelector: FC<{
           setProvider(value as Provider);
         }}
         disabled={!isActive}
-        size="sm"
+        size="xs"
       />
 
       <Select
@@ -72,7 +72,7 @@ export const ModelSelector: FC<{
         }}
         disabled={!isActive}
         options={models[provider]}
-        size="sm"
+        size="xs"
         className="border-none bg-accent dark:bg-accent"
       />
     </div>

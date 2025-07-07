@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useUsage } from "./_components/localStorage.hook";
+import { useAssistant, useUsage } from "./_components/hooks/localStorage.hook";
 import {
   useEffect,
   useMemo,
@@ -20,9 +20,7 @@ import { PromtForm } from "./_components/PromptForm";
 
 export default function Page() {
   const { usage, setUsage } = useUsage();
-  const [assystentDescription, setAssysDescription] = useState<
-    string | undefined
-  >();
+  const { assystentDescription } = useAssistant();
   const [provider, setProvider] = useState<Provider>();
   const [model, setModel] = useState<ModelId | undefined>();
   const [apiKey, setApiKey] = useState<string | undefined>();
@@ -68,7 +66,7 @@ export default function Page() {
 
   return (
     <div className="px-6">
-      <ControllPanel className="py-3">
+      <ControllPanel className="py-3" {...{ apiKey, setApiKey }}>
         {!apiKey && <Usage className="" />}
       </ControllPanel>
       <RenderMessages messages={messages} setMessages={setMessages} />
@@ -87,40 +85,6 @@ export default function Page() {
           setModel,
           isActive,
           onQuerySubmit,
-        }}
-      />
-      <form
-        onSubmit={(ev) => {
-          ev.preventDefault();
-          const value = ev.currentTarget["descriptor"].value;
-          setAssysDescription(value);
-        }}
-        className="absolute left-4 top-32"
-      >
-        <textarea
-          name="descriptor"
-          placeholder="Assystent description"
-          defaultValue={assystentDescription}
-          onClick={(ev) => {
-            ev.preventDefault();
-            ev.currentTarget.form?.requestSubmit();
-          }}
-          onKeyDown={(ev) => {
-            const { key, shiftKey, altKey, ctrlKey } = ev;
-            if (key === "Enter" && !shiftKey && !altKey && !ctrlKey) {
-              ev.preventDefault();
-              ev.currentTarget.form?.requestSubmit();
-            }
-          }}
-        />
-      </form>
-      <input
-        type="text"
-        placeholder="You API key"
-        className="absolute left-4 top-24"
-        value={apiKey ?? ""}
-        onChange={({ target: { value } }) => {
-          setApiKey(value);
         }}
       />
     </div>

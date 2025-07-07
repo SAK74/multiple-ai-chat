@@ -44,3 +44,13 @@ export const useUsage = () => {
     },
   };
 };
+
+const ASSIST_DESCRIPTION_KEY = "chat-assistant-description";
+
+export const useAssistant = () => {
+  const [value, setValue] = useLocalStorage(ASSIST_DESCRIPTION_KEY);
+  return {
+    assystentDescription: value ? value : undefined,
+    setAssysDescription: setValue,
+  };
+};
