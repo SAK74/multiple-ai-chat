@@ -54,7 +54,7 @@ export const ModelSelector: FC<{
   return (
     <div className={cn("flex gap-2", className)}>
       <Select
-        className="border-none bg-accent dark:bg-accent"
+        className="border-none bg-accent dark:bg-accent cursor-pointer"
         optionsClassName="capitalize"
         value={provider}
         options={providers}
@@ -73,7 +73,7 @@ export const ModelSelector: FC<{
         disabled={!isActive}
         options={models[provider]}
         size="xs"
-        className="border-none bg-accent dark:bg-accent"
+        className="border-none bg-accent dark:bg-accent cursor-pointer"
       />
     </div>
   );

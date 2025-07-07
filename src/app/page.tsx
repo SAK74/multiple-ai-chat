@@ -9,14 +9,12 @@ import {
   useState,
   type FormEventHandler,
 } from "react";
-import { Usage } from "./_components/Usage";
 import type { ModelId, Provider } from "./types";
-import { RenderMessages } from "./_components/RenderMessages";
 import { ControllPanel } from "./_components/Controll";
 
 import { TOKENS_LIMIT } from "./_constants";
 import { showOverdraft } from "./_tools/overdraftMessage";
-import { PromtForm } from "./_components/PromptForm";
+import { PromtForm, RenderMessages, Spinner, Usage } from "./_components";
 
 export default function Page() {
   const { usage, setUsage } = useUsage();
@@ -24,11 +22,6 @@ export default function Page() {
   const [provider, setProvider] = useState<Provider>();
   const [model, setModel] = useState<ModelId | undefined>();
   const [apiKey, setApiKey] = useState<string | undefined>();
-
-  const isActive = useMemo(
-    () => usage < TOKENS_LIMIT || Boolean(apiKey),
-    [usage, apiKey]
-  );
 
   const chat = useChat({
     api: "/api/aichat",
@@ -49,6 +42,11 @@ export default function Page() {
   });
 
   const { messages, handleSubmit, setMessages, error, status } = chat;
+  const isActive = useMemo(
+    () => status === "ready" && (usage < TOKENS_LIMIT || Boolean(apiKey)),
+    [usage, apiKey, status]
+  );
+
   const bottomRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     bottomRef.current?.scrollIntoView();
@@ -71,7 +69,11 @@ export default function Page() {
       </ControllPanel>
       <RenderMessages messages={messages} setMessages={setMessages} />
       <div ref={bottomRef} className="h-4" />
-      {status === "submitted" && <div>Loading....</div>}
+      {status === "submitted" && (
+        <div className="inline-block">
+          <Spinner />
+        </div>
+      )}
       {status === "error" && (
         <p className="text-destructive/85">{error?.message}</p>
       )}
