@@ -31,10 +31,15 @@ export async function POST(request: NextRequest) {
     const model = getModel({ provider, modelId, apiKey });
 
     const dataStreamResponse = createDataStreamResponse({
-      execute(dataStream) {
-        dataStream.writeData("Initiate");
+      async execute(dataStream) {
+        dataStream.writeData("Initiation..");
         dataStream.writeMessageAnnotation({ provider });
-
+        const test = await new Promise<string>((resolve) => {
+          setTimeout(() => {
+            resolve("Test phase...");
+          }, 1000);
+        });
+        dataStream.writeData(test);
         const result = streamText({
           model,
           ...(system && { system }),
