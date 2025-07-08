@@ -42,7 +42,6 @@ export const SetupForm: FC<PropsWithChildren<SetupProps>> = ({
             setAssysDescription(description);
             const apiKey = ev.currentTarget["api_key"].value;
             setApiKey(apiKey);
-            console.log("Form submitted!");
           }}
           className="space-y-4"
         >

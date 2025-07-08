@@ -41,11 +41,28 @@ export default function Page() {
     },
   });
 
-  const { messages, handleSubmit, setMessages, error, status } = chat;
+  const {
+    messages,
+    handleSubmit,
+    setMessages,
+    error,
+    status,
+    data,
+    setData,
+    reload: chatReload,
+  } = chat;
   const isActive = useMemo(
     () => status === "ready" && (usage < TOKENS_LIMIT || Boolean(apiKey)),
     [usage, apiKey, status]
   );
+
+  const [streamStatus, setStreamStatus] = useState<string>();
+  useEffect(() => {
+    const current = data?.at(-1);
+    if (typeof current === "string") {
+      setStreamStatus(current);
+    }
+  }, [data?.length]);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -59,7 +76,7 @@ export default function Page() {
       return;
     }
     handleSubmit(ev);
-    // setData(undefined);
+    setData(undefined);
   };
 
   return (
@@ -74,6 +91,7 @@ export default function Page() {
           <Spinner />
         </div>
       )}
+      {status === "streaming" && <div>{streamStatus}</div>}
       {status === "error" && (
         <p className="text-destructive/85">{error?.message}</p>
       )}
@@ -87,6 +105,10 @@ export default function Page() {
           setModel,
           isActive,
           onQuerySubmit,
+          reload: () => {
+            setData(undefined);
+            return chatReload();
+          },
         }}
       />
     </div>
