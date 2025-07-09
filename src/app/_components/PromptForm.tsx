@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Tooltip } from "@/src/components/Tooltip";
 import type { UseChatHelpers } from "@ai-sdk/react";
-import { Spinner } from "./Spinner";
+import { cn } from "@/src/lib/utils";
 
 type PromtFormProps = Partial<UseChatHelpers> & {
   onQuerySubmit: FormEventHandler;
@@ -66,13 +66,13 @@ export const PromtForm: FC<PromtFormProps> = ({
         variant={"ghost"}
         size={"icon"}
         className="absolute right-3 bottom-7 cursor-pointer"
-        disabled={!isActive}
+        disabled={!isActive || status !== "ready"}
       >
-        {isActive ? (
-          <SendHorizonalIcon className="size-6" />
-        ) : (
-          <Spinner className="size-6" />
-        )}
+        <SendHorizonalIcon
+          className={cn("size-6", {
+            "animate-pulse": status === "submitted" || status === "streaming",
+          })}
+        />
       </Button>
 
       <div className="flex gap-4 absolute right-3 -bottom-3 z-10 bg-accent border rounded-lg px-5 *:cursor-pointer *:size-6">
