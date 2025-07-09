@@ -52,8 +52,8 @@ export default function Page() {
     reload: chatReload,
   } = chat;
   const isActive = useMemo(
-    () => status === "ready" && (usage < TOKENS_LIMIT || Boolean(apiKey)),
-    [usage, apiKey, status]
+    () => usage < TOKENS_LIMIT || Boolean(apiKey),
+    [usage, apiKey]
   );
 
   const [streamStatus, setStreamStatus] = useState<string>();

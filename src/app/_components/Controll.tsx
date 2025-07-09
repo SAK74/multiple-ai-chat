@@ -2,9 +2,9 @@ import { cn } from "@/src/lib/utils";
 import type { FC, PropsWithChildren } from "react";
 import { SettingsIcon } from "lucide-react";
 import { ThemeChanger } from "./ThemeChanger";
-import { Avatar } from "@/src/components/Avatar";
 import { SetupForm, SetupProps } from "./SetupForm";
 import { Button } from "@/src/components/ui/button";
+import { UserIcon } from "./UserIcon";
 
 export const ControllPanel: FC<
   PropsWithChildren<{ className?: string } & SetupProps>
@@ -24,7 +24,7 @@ export const ControllPanel: FC<
             <SettingsIcon className="size-6" />
           </Button>
         </SetupForm>
-        <Avatar />
+        <UserIcon />
       </div>
     </div>
   );

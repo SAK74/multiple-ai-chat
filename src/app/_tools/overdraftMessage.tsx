@@ -6,5 +6,6 @@ export function showOverdraft() {
       You have overdraften trial limit! Log in and/or provide API key.
     </div>,
     "info"
+    // {duration:10000}
   );
 }
