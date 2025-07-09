@@ -43,8 +43,8 @@ export default function Page() {
 
   const { messages, handleSubmit, setMessages, error, status } = chat;
   const isActive = useMemo(
-    () => status === "ready" && (usage < TOKENS_LIMIT || Boolean(apiKey)),
-    [usage, apiKey, status]
+    () => usage < TOKENS_LIMIT || Boolean(apiKey),
+    [usage, apiKey]
   );
 
   const bottomRef = useRef<HTMLDivElement>(null);
