@@ -10,7 +10,7 @@ import { BanIcon, Icon, MessageSquareMoreIcon } from "lucide-react";
 
 export const SideBarComp = () => {
   return (
-    <Sidebar className="pt-16" collapsible="icon" variant="floating">
+    <Sidebar className="pt-16" collapsible="offcanvas" variant="floating">
       {/* <SidebarInset>
         <SidebarContent>Content</SidebarContent>
       </SidebarInset> */}
