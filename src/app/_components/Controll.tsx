@@ -12,7 +12,7 @@ export const ControllPanel: FC<
   return (
     <div
       className={cn(
-        "flex text-right justify-between mr-4 items-center sticky top-0",
+        "flex text-right justify-between items-center sticky top-0 bg-transparent backdrop-blur-sm z-10",
         className
       )}
     >
