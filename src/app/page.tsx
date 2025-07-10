@@ -15,6 +15,13 @@ import { ControllPanel } from "./_components/Controll";
 import { TOKENS_LIMIT } from "./_constants";
 import { showOverdraft } from "./_tools/overdraftMessage";
 import { PromtForm, RenderMessages, Spinner, Usage } from "./_components";
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from "../components/ui/sidebar";
+import { SideBarComp } from "./_components/SideBar";
+import { Tooltip } from "../components/Tooltip";
 
 export default function Page() {
   const { usage, setUsage } = useUsage();
@@ -62,33 +69,88 @@ export default function Page() {
     // setData(undefined);
   };
 
+  // const { state } = useSidebar();
+  // console.log({ state });
+
   return (
-    <div className="px-6">
-      <ControllPanel className="py-3" {...{ apiKey, setApiKey }}>
+    <div className="">
+      <ControllPanel className="py-3 px-4" {...{ apiKey, setApiKey }}>
         {!apiKey && <Usage className="" />}
       </ControllPanel>
-      <RenderMessages messages={messages} setMessages={setMessages} />
-      <div ref={bottomRef} className="h-4" />
-      {status === "submitted" && (
-        <div className="inline-block">
-          <Spinner />
-        </div>
-      )}
-      {status === "error" && (
-        <p className="text-destructive/85">{error?.message}</p>
-      )}
+      <SidebarProvider>
+        <SideBarComp />
+        {/* <div className="px-6 w-full">
+        <ControllPanel className="py-3" {...{ apiKey, setApiKey }}>
+          {!apiKey && <Usage className="" />}
+        </ControllPanel> */}
+        <div className="px-6 w-full relative">
+          {/* <ControllPanel className="py-3" {...{ apiKey, setApiKey }}>
+          {!apiKey && <Usage className="" />}
+        </ControllPanel> */}
+          <Tooltip label="Show history">
+            <SidebarTrigger className="sticky float-left top-16 cursor-pointer z-10 backdrop-blur-lg" />
+          </Tooltip>
 
-      <PromtForm
-        {...{
-          ...chat,
-          provider,
-          setProvider,
-          model,
-          setModel,
-          isActive,
-          onQuerySubmit,
-        }}
-      />
+          <RenderMessages messages={messages} setMessages={setMessages} />
+          <div ref={bottomRef} className="h-4" />
+          {status === "submitted" && (
+            <div className="inline-block">
+              <Spinner />
+            </div>
+          )}
+          {status === "error" && (
+            <p className="text-destructive/85">{error?.message}</p>
+          )}
+
+          <PromtForm
+            {...{
+              ...chat,
+              provider,
+              setProvider,
+              model,
+              setModel,
+              isActive,
+              onQuerySubmit,
+            }}
+          />
+        </div>
+        {/* </div> */}
+      </SidebarProvider>
     </div>
+
+    // <div className="px-6 w-full">
+    //   <ControllPanel className="py-3" {...{ apiKey, setApiKey }}>
+    //     {!apiKey && <Usage className="" />}
+    //   </ControllPanel>
+    //   <div className="">
+    //     {/* <ControllPanel className="py-3" {...{ apiKey, setApiKey }}>
+    //       {!apiKey && <Usage className="" />}
+    //     </ControllPanel> */}
+    //     <SidebarTrigger />
+
+    //     <RenderMessages messages={messages} setMessages={setMessages} />
+    //     <div ref={bottomRef} className="h-4" />
+    //     {status === "ready" && (
+    //       <div className="inline-block">
+    //         <Spinner />
+    //       </div>
+    //     )}
+    //     {status === "error" && (
+    //       <p className="text-destructive/85">{error?.message}</p>
+    //     )}
+
+    //     <PromtForm
+    //       {...{
+    //         ...chat,
+    //         provider,
+    //         setProvider,
+    //         model,
+    //         setModel,
+    //         isActive,
+    //         onQuerySubmit,
+    //       }}
+    //     />
+    //   </div>
+    // </div>
   );
 }
