@@ -2,6 +2,7 @@
 
 import { useChat } from "@ai-sdk/react";
 import {
+  FC,
   useEffect,
   useMemo,
   useRef,
@@ -22,7 +23,10 @@ import {
   useUsage,
 } from ".";
 
-export function Chat() {
+export const Chat: FC<{ chatId?: string; userId?: string }> = ({
+  chatId,
+  userId,
+}) => {
   const { usage, setUsage } = useUsage();
   const { assystentDescription } = useAssistant();
   const [provider, setProvider] = useState<Provider>();
@@ -31,13 +35,22 @@ export function Chat() {
 
   const chat = useChat({
     api: "/api/aichat",
-    onFinish(_, options) {
+    id: chatId,
+    async onFinish(_, options) {
       const summary = usage + options.usage.totalTokens;
       setUsage(summary);
       if (summary >= TOKENS_LIMIT) {
         showOverdraft();
       }
-      // bottomRef.current?.scrollIntoView();
+      setStreamStatus(undefined);
+
+      // push messages to user's chat
+
+      if (userId) {
+      }
+      // ....
+
+      // mutate SWR
     },
     body: {
       system: assystentDescription,
@@ -45,9 +58,25 @@ export function Chat() {
       model,
       apiKey,
     },
+    // experimental_prepareRequestBody({ id, messages,  }) {
+    //   return {
+    //     message: messages[0],
+    //     system: assystentDescription,
+    //     provider,
+    //     model,
+    //     apiKey,
+    //   };
+    // },
   });
 
-  const { messages, handleSubmit, setMessages, error, status } = chat;
+  const {
+    messages,
+    handleSubmit,
+    setMessages,
+    error,
+    status,
+    data: chatData,
+  } = chat;
   const isActive = useMemo(
     () => usage < TOKENS_LIMIT || Boolean(apiKey),
     [usage, apiKey]
@@ -65,8 +94,15 @@ export function Chat() {
       return;
     }
     handleSubmit(ev);
-    // setData(undefined);
   };
+
+  const [streamStatus, setStreamStatus] = useState<string>();
+  useEffect(() => {
+    const current = chatData?.at(-1);
+    if (typeof current === "string") {
+      setStreamStatus(current);
+    }
+  }, [chatData?.length]);
 
   return (
     <div className="px-6 w-full">
@@ -81,6 +117,7 @@ export function Chat() {
           <Spinner />
         </div>
       )}
+      {streamStatus}
       {status === "error" && (
         <p className="text-destructive/85">{error?.message}</p>
       )}
@@ -98,4 +135,4 @@ export function Chat() {
       />
     </div>
   );
-}
+};
