@@ -44,7 +44,9 @@ export async function POST(request: NextRequest) {
           model,
           ...(system && { system }),
           messages,
-          onFinish: () => {
+          onFinish: ({ response }) => {
+            console.log("Response: ", response.messages);
+
             dataStream.writeData("Finished");
           },
           // onStepFinish: () => {
@@ -73,13 +75,6 @@ export async function POST(request: NextRequest) {
         return JSON.stringify(error);
       },
     });
-
-    // const textStream = result.textStream;
-    // console.log({ textStream });
-
-    // result.text.then((text) => {
-    //   console.log({ text });
-    // });
 
     return dataStreamResponse;
   } catch (error) {

@@ -19,7 +19,7 @@ export const UserIcon = () => {
   };
 
   const onLogout = () => {
-    signOut();
+    signOut({ redirectTo: "/" });
   };
   return (
     <DropdownMenu>
