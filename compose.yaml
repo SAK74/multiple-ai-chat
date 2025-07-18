@@ -1,0 +1,33 @@
+name: chat-postgres
+
+services:
+  postgres:
+    image: postgres:15.13-alpine3.22
+    # hostname: chat-postgres
+    restart: unless-stopped
+    # networks:
+    #   - myNet
+    # env_file:
+    #   - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSW}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - data:/var/lib/postgresql/data
+    expose:
+      - ${PG_PORT}
+    ports:
+      - ${PG_PORT}:${PG_PORT}
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  data:
+
+# networks:
+#   myNet:
+#     driver: bridge
