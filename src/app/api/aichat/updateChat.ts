@@ -8,7 +8,20 @@ export async function updateChat(
   ...messages: Message[]
 ) {
   console.log(styleText("green", "In update chat: "), userId, chatId, messages);
+  try {
+    await db.user.findUniqueOrThrow({ where: { id: userId } });
+  } catch (err) {
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "code" in err &&
+      (err as any).code === "P2025"
+    ) {
+      throw Error("User not existed in db! Please try log in again.");
+    }
 
+    throw Error("Error fetching DB...");
+  }
   const prismaMessages = messages.map((message) => {
     delete message.toolInvocations;
     return {

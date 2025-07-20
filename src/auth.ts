@@ -24,13 +24,13 @@ export const {
 
       return { ...session, user: { ...session.user, id: sub } };
     },
-    jwt(params) {
-      // console.log(styleText("red", "-------------"));
-      // console.log("Jwt callback");
-      // console.log({ params });
-      // console.log(styleText("red", "-------------"));
-      return params.token;
-    },
+    // jwt(params) {
+    //   // console.log(styleText("red", "-------------"));
+    //   // console.log("Jwt callback");
+    //   // console.log({ params });
+    //   // console.log(styleText("red", "-------------"));
+    //   return params.token;
+    // },
   },
   events: {
     session(message) {
@@ -40,9 +40,9 @@ export const {
       // console.log(styleText("red", "-------------"));
     },
 
-    createUser(message) {
-      console.log("Create user ", message);
-    },
+    // createUser(message) {
+    //   console.log("Create user ", message);
+    // },
     async signIn(message) {
       // console.log(styleText("red", "-------------"));
       // console.log("Signin event");
