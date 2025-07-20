@@ -37,12 +37,19 @@ export const SideBarComp: FC<{ userId?: string }> = async ({ userId }) => {
           <span>New chat</span>
         </Link>
         {chats.map((chat) => (
-          <Link href={`/${chat.id}`} key={chat.id} className="flex gap-2">
+          <Link
+            href={`/${chat.id}`}
+            key={chat.id}
+            className="flex gap-2 items-center"
+          >
             <span>
               <MessageSquareMoreIcon />
             </span>
-            <span className="text-sm text-ellipsis overflow-hidden whitespace-pre">
-              {chat.messages[1].content}
+            <span className="text-sm overflow-hidden text-left">
+              <div className="text-sm font-semibold text-ellipsis overflow-hidden whitespace-pre">
+                {chat.messages[1].content}
+              </div>
+              <div className="text-xs">{chat.created.toLocaleString()}</div>
             </span>
           </Link>
         ))}

@@ -29,6 +29,9 @@ export default async function Page({
   if (user && !chatId) {
     redirect(`/${randomUUID()}`);
   }
+  if (!user && chatId) {
+    redirect("/");
+  }
   const initialMessages = chatId
     ? ((
         await db.chat.findUnique({
@@ -55,3 +58,5 @@ export default async function Page({
     </SidebarProvider>
   );
 }
+
+export const dynamic = "force-dynamic";

@@ -33,7 +33,7 @@ export const UserIcon = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuItem onClick={onLogin} disabled={!!data}>
-          Login
+          Login by github
         </DropdownMenuItem>
         <DropdownMenuItem onClick={onLogout} disabled={!data}>
           Logout
