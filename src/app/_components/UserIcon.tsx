@@ -26,7 +26,9 @@ export const UserIcon = () => {
       <DropdownMenuTrigger>
         <Avatar>
           {data?.user?.image && <AvatarImage src={data.user.image} />}
-          <AvatarFallback>?</AvatarFallback>
+          <AvatarFallback>
+            {data?.user?.email?.slice(0, 2) ?? "?"}
+          </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
