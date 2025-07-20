@@ -1,27 +1,24 @@
-import { auth } from "@/src/auth";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarInset,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
   SidebarMenuItem,
 } from "@/src/components/ui/sidebar";
 import { db } from "@/src/lib/prisma";
 import {
-  BanIcon,
-  Icon,
+  FileQuestionMarkIcon,
   MessageSquareMoreIcon,
   PencilLineIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { randomUUID } from "node:crypto";
-import { FC } from "react";
+import type { FC } from "react";
 
 export const SideBarComp: FC<{ userId?: string }> = async ({ userId }) => {
-  // const chats = useSwr(...)
-  // const session = auth()
-  // const userId
   const chats = !userId
     ? []
     : await db.chat.findMany({
@@ -29,30 +26,56 @@ export const SideBarComp: FC<{ userId?: string }> = async ({ userId }) => {
         where: { userId },
       });
   return (
-    <Sidebar className="pt-16" collapsible="offcanvas" variant="floating">
+    <Sidebar className="pt-16" collapsible="icon" variant="floating">
       {/* <SidebarHeader>Header</SidebarHeader> */}
       <SidebarContent className="p-2">
-        <Link href={`/${randomUUID()}`} className="flex gap-2">
-          <PencilLineIcon />
-          <span>New chat</span>
-        </Link>
-        {chats.map((chat) => (
-          <Link
-            href={`/${chat.id}`}
-            key={chat.id}
-            className="flex gap-2 items-center"
+        {userId ? (
+          <>
+            <SidebarGroup>
+              <SidebarMenuButton asChild className="hover:bg-accent/50">
+                <Link href={`/${randomUUID()}`} className="flex gap-2">
+                  <PencilLineIcon />
+                  <span>New chat</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarGroup>
+            <SidebarGroup>
+              <SidebarGroupLabel>History</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu className="gap-3">
+                  {chats.map((chat) => (
+                    <SidebarMenuItem key={chat.id}>
+                      <SidebarMenuButton asChild className="hover:bg-accent/50">
+                        <Link
+                          href={`/${chat.id}`}
+                          className="flex gap-2 items-center"
+                        >
+                          <MessageSquareMoreIcon />
+                          <span className="text-sm overflow-hidden text-left">
+                            <div className="text-sm font-semibold text-ellipsis overflow-hidden whitespace-pre">
+                              {chat.messages[1].content}
+                            </div>
+                            <div className="text-xs">
+                              {chat.created.toLocaleString()}
+                            </div>
+                          </span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </>
+        ) : (
+          <SidebarMenuButton
+            className="cursor-pointer hover:bg-background py-6"
+            disabled
           >
-            <span>
-              <MessageSquareMoreIcon />
-            </span>
-            <span className="text-sm overflow-hidden text-left">
-              <div className="text-sm font-semibold text-ellipsis overflow-hidden whitespace-pre">
-                {chat.messages[1].content}
-              </div>
-              <div className="text-xs">{chat.created.toLocaleString()}</div>
-            </span>
-          </Link>
-        ))}
+            <FileQuestionMarkIcon />
+            <p>You must be llogged to see chat history...</p>
+          </SidebarMenuButton>
+        )}
       </SidebarContent>
     </Sidebar>
   );
