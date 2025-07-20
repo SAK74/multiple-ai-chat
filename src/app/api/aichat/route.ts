@@ -56,11 +56,13 @@ export async function POST(request: NextRequest) {
           model,
           ...(system && { system }),
           messages,
-          onFinish: ({ response }) => {
-            console.log("Response: ", JSON.stringify(response.messages));
+          onFinish: async ({ response }) => {
+            // console.log("Response: ", JSON.stringify(response.messages));
+            // throw Error("test error");
+            dataStream.writeData("Saving to db");
             // update db
             if (id && userId) {
-              updateChat(
+              await updateChat(
                 userId,
                 id,
                 ...appendResponseMessages({
