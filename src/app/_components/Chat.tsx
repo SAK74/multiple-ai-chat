@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
+import { Message, useChat } from "@ai-sdk/react";
 import {
   FC,
   useEffect,
@@ -22,20 +22,26 @@ import {
   useAssistant,
   useUsage,
 } from ".";
+import { useRouter } from "next/navigation";
 
-export const Chat: FC<{ chatId?: string; userId?: string }> = ({
-  chatId,
-  userId,
-}) => {
+export const Chat: FC<{
+  chatId?: string;
+  userId?: string;
+  initialMessages?: Message[];
+}> = ({ chatId, userId, initialMessages }) => {
   const { usage, setUsage } = useUsage();
   const { assystentDescription } = useAssistant();
   const [provider, setProvider] = useState<Provider>();
   const [model, setModel] = useState<ModelId | undefined>();
   const [apiKey, setApiKey] = useState<string | undefined>();
 
+  const { refresh } = useRouter();
+
   const chat = useChat({
     api: "/api/aichat",
     id: chatId,
+    sendExtraMessageFields: true,
+    initialMessages,
     async onFinish(_, options) {
       const summary = usage + options.usage.totalTokens;
       setUsage(summary);
@@ -44,19 +50,19 @@ export const Chat: FC<{ chatId?: string; userId?: string }> = ({
       }
       setStreamStatus(undefined);
 
-      // push messages to user's chat
-
       if (userId) {
+        refresh();
       }
       // ....
 
-      // mutate SWR
+      // mutate SWR??
     },
     body: {
       system: assystentDescription,
       provider,
       model,
       apiKey,
+      ...(userId && { userId }),
     },
     // experimental_prepareRequestBody({ id, messages,  }) {
     //   return {

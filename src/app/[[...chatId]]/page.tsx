@@ -6,6 +6,8 @@ import { SideBarTrigger } from "../_components/SideTrigger";
 import { auth } from "@/src/auth";
 import { redirect, RedirectType } from "next/navigation";
 import { randomUUID } from "node:crypto";
+import { db } from "@/src/lib/prisma";
+import { Message } from "ai";
 
 export default async function Page({
   params,
@@ -22,16 +24,34 @@ export default async function Page({
     : resolvedChatParam;
 
   const user = (await auth())?.user;
+  console.log({ user });
 
   if (user && !chatId) {
     redirect(`/${randomUUID()}`);
   }
+  const initialMessages = chatId
+    ? ((
+        await db.chat.findUnique({
+          where: { id: chatId },
+          select: { messages: { omit: { chatId: true } } },
+        })
+      )?.messages.map((message) => ({
+        ...message,
+        createdAt: message.createdAt ? message.createdAt : undefined,
+      })) as Message[])
+    : undefined;
+
+  console.log({ initialMessages });
 
   return (
     <SidebarProvider defaultOpen={isSidebarOpened}>
-      <SideBarComp />
+      <SideBarComp userId={user?.id} />
       <SideBarTrigger />
-      <Chat />
+      <Chat
+        chatId={chatId}
+        userId={user?.id}
+        initialMessages={initialMessages}
+      />
     </SidebarProvider>
   );
 }

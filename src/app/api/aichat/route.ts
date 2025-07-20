@@ -1,7 +1,13 @@
-import { createDataStreamResponse, Message, streamText } from "ai";
+import {
+  appendResponseMessages,
+  createDataStreamResponse,
+  Message,
+  streamText,
+} from "ai";
 import { NextRequest } from "next/server";
 import { getModel } from "./getModel";
 import { Provider } from "../../types";
+import { updateChat } from "./updateChat";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,12 +20,16 @@ export async function POST(request: NextRequest) {
       provider = "openai",
       model: modelId,
       apiKey,
+      id,
+      userId,
     } = (await request.json()) as {
       messages: Message[];
       system?: string;
       provider?: Provider;
       model?: string;
       apiKey?: string;
+      id?: string;
+      userId?: string;
     };
     console.log({
       // messages: JSON.stringify(messages),
@@ -27,6 +37,8 @@ export async function POST(request: NextRequest) {
       provider,
       modelId,
       apiKey,
+      id,
+      userId,
     });
     const model = getModel({ provider, modelId, apiKey });
 
@@ -37,7 +49,7 @@ export async function POST(request: NextRequest) {
         const test = await new Promise<string>((resolve) => {
           setTimeout(() => {
             resolve("Test phase...");
-          }, 1000);
+          }, 500);
         });
         dataStream.writeData(test);
         const result = streamText({
@@ -45,13 +57,20 @@ export async function POST(request: NextRequest) {
           ...(system && { system }),
           messages,
           onFinish: ({ response }) => {
-            console.log("Response: ", response.messages);
-
+            console.log("Response: ", JSON.stringify(response.messages));
+            // update db
+            if (id && userId) {
+              updateChat(
+                userId,
+                id,
+                ...appendResponseMessages({
+                  messages,
+                  responseMessages: response.messages,
+                })
+              );
+            }
             dataStream.writeData("Finished");
           },
-          // onStepFinish: () => {
-          //   console.log("Step finished");
-          // },
         });
         result.usage.then((usage) => {
           console.log({ usage });

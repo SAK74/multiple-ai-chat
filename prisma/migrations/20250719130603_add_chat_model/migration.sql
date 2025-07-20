@@ -17,6 +17,7 @@ CREATE TABLE "Message" (
     "content" TEXT NOT NULL,
     "role" "Role" NOT NULL,
     "annotations" JSONB,
+    "parts" JSONB,
     "chatId" TEXT,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
