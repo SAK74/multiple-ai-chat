@@ -31,15 +31,18 @@ export async function POST(request: NextRequest) {
       id?: string;
       userId?: string;
     };
-    console.log({
-      // messages: JSON.stringify(messages),
-      system,
-      provider,
-      modelId,
-      apiKey,
-      id,
-      userId,
-    });
+    if (process.env.NODE_ENV !== "production") {
+      console.log({
+        // messages: JSON.stringify(messages),
+        system,
+        provider,
+        modelId,
+        apiKey,
+        id,
+        userId,
+      });
+    }
+
     const model = getModel({ provider, modelId, apiKey });
 
     const dataStreamResponse = createDataStreamResponse({
@@ -74,12 +77,14 @@ export async function POST(request: NextRequest) {
             dataStream.writeData("Finished");
           },
         });
-        result.usage.then((usage) => {
-          console.log({ usage });
-        });
-        result.response.then(({ modelId }) => {
-          console.log({ modelId });
-        });
+        if (process.env.NODE_ENV !== "production") {
+          result.usage.then((usage) => {
+            console.log({ usage });
+          });
+          result.response.then(({ modelId }) => {
+            console.log({ modelId });
+          });
+        }
 
         result.mergeIntoDataStream(dataStream);
       },
@@ -101,8 +106,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.log(error);
     let message = "Unknown error...";
-    if (error instanceof Error) {
-    }
     switch (true) {
       case error instanceof Error:
         message = error.message;

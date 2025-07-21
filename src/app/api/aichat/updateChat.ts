@@ -1,13 +1,11 @@
 import { db } from "@/src/lib/prisma";
 import type { Message } from "ai";
-import { styleText } from "node:util";
 
 export async function updateChat(
   userId: string,
   chatId: string,
   ...messages: Message[]
 ) {
-  console.log(styleText("green", "In update chat: "), userId, chatId, messages);
   try {
     await db.user.findUniqueOrThrow({ where: { id: userId } });
   } catch (err) {
@@ -15,7 +13,7 @@ export async function updateChat(
       typeof err === "object" &&
       err !== null &&
       "code" in err &&
-      (err as any).code === "P2025"
+      err.code === "P2025"
     ) {
       throw Error("User not existed in db! Please try log in again.");
     }
