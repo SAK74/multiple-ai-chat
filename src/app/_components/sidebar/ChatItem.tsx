@@ -90,7 +90,10 @@ export const ChatItem: FC<{
         </>
       ) : (
         <form onSubmit={handleSubmit}>
-          <Input name="newName" />
+          <Input
+            name="newName"
+            defaultValue={chat.name ? chat.name : undefined}
+          />
         </form>
       )}
     </SidebarMenuItem>

@@ -1,15 +1,10 @@
-import { auth } from "@/src/auth";
 import { db } from "@/src/lib/prisma";
 
 export default async function Page() {
-  console.log("env: ", process.env.DATABASE_URL);
-
   const users = await db.user.findMany({
     include: { accounts: true, chats: true },
   });
-  console.log({ users });
-  const session = await auth();
-  console.log("Session user: ", session?.user, session?.user?.id);
+  // console.log({ users });
 
   return (
     <main>
