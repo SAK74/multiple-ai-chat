@@ -108,6 +108,7 @@ export const Chat: FC<{
     if (typeof current === "string") {
       setStreamStatus(current);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatData?.length]);
 
   return (
