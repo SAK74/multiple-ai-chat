@@ -6,19 +6,18 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
 } from "@/src/components/ui/sidebar";
 import { db } from "@/src/lib/prisma";
-import {
-  FileQuestionMarkIcon,
-  MessageSquareMoreIcon,
-  PencilLineIcon,
-} from "lucide-react";
+import { FileQuestionMarkIcon, PencilLineIcon } from "lucide-react";
 import Link from "next/link";
 import { randomUUID } from "node:crypto";
 import type { FC } from "react";
+import { ChatItem } from "./ChatItem";
 
-export const SideBarComp: FC<{ userId?: string }> = async ({ userId }) => {
+export const SideBarComp: FC<{ userId?: string; chatId?: string }> = async ({
+  userId,
+  chatId,
+}) => {
   const chats = !userId
     ? []
     : await db.chat.findMany({
@@ -27,8 +26,7 @@ export const SideBarComp: FC<{ userId?: string }> = async ({ userId }) => {
       });
   return (
     <Sidebar className="pt-16" collapsible="icon" variant="floating">
-      {/* <SidebarHeader>Header</SidebarHeader> */}
-      <SidebarContent className="p-2">
+      <SidebarContent className="p-2 gap-0">
         {userId ? (
           <>
             <SidebarGroup>
@@ -44,24 +42,7 @@ export const SideBarComp: FC<{ userId?: string }> = async ({ userId }) => {
               <SidebarGroupContent>
                 <SidebarMenu className="gap-3">
                   {chats.map((chat) => (
-                    <SidebarMenuItem key={chat.id}>
-                      <SidebarMenuButton asChild className="hover:bg-accent/50">
-                        <Link
-                          href={`/${chat.id}`}
-                          className="flex gap-2 items-center"
-                        >
-                          <MessageSquareMoreIcon />
-                          <span className="text-sm overflow-hidden text-left">
-                            <div className="text-sm font-semibold text-ellipsis overflow-hidden whitespace-pre">
-                              {chat.messages[1].content}
-                            </div>
-                            <div className="text-xs">
-                              {chat.created.toLocaleString()}
-                            </div>
-                          </span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
+                    <ChatItem key={chat.id} {...{ chat, chatId }} />
                   ))}
                 </SidebarMenu>
               </SidebarGroupContent>

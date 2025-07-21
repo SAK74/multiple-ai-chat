@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { SidebarProvider } from "../../components/ui/sidebar";
-import { SideBarComp } from "../_components/SideBar";
+import { SideBarComp } from "../_components/sidebar/SideBar";
 import { Chat } from "../_components/Chat";
 import { SideBarTrigger } from "../_components/SideTrigger";
 import { auth } from "@/src/auth";
@@ -24,7 +24,6 @@ export default async function Page({
     : resolvedChatParam;
 
   const user = (await auth())?.user;
-  console.log({ user });
 
   if (user && !chatId) {
     redirect(`/${randomUUID()}`);
@@ -44,11 +43,11 @@ export default async function Page({
       })) as Message[])
     : undefined;
 
-  console.log({ initialMessages });
+  // console.log({ initialMessages });
 
   return (
     <SidebarProvider defaultOpen={isSidebarOpened}>
-      <SideBarComp userId={user?.id} />
+      <SideBarComp userId={user?.id} chatId={chatId} />
       <SideBarTrigger />
       <Chat
         chatId={chatId}
