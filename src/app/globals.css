@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@import './_components/sidebar.css';
+@import './_components/sidebar/sidebar.css';
 
 @custom-variant dark (&:is(.dark *));
 
