@@ -38,6 +38,7 @@ export async function updateChat(
           where: { id: chatId },
           create: {
             messages: { createMany: { data: prismaMessages } },
+            name: messages[1].content.slice(0, 30),
           },
           update: { messages: { createMany: { data: prismaMessages } } },
         },
