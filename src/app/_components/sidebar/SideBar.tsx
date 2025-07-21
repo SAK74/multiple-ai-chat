@@ -23,6 +23,7 @@ export const SideBarComp: FC<{ userId?: string; chatId?: string }> = async ({
     : await db.chat.findMany({
         include: { messages: true },
         where: { userId },
+        orderBy: { created: "desc" },
       });
   return (
     <Sidebar className="pt-16" collapsible="icon" variant="floating">

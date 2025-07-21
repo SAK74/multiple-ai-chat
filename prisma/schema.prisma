@@ -66,6 +66,7 @@ model Chat {
   userId   String
   messages Message[]
   created  DateTime  @default(now())
+  name     String?
 }
 
 model Message {

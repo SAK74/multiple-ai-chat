@@ -4,7 +4,7 @@ import { SideBarComp } from "../_components/sidebar/SideBar";
 import { Chat } from "../_components/Chat";
 import { SideBarTrigger } from "../_components/SideTrigger";
 import { auth } from "@/src/auth";
-import { redirect, RedirectType } from "next/navigation";
+import { redirect } from "next/navigation";
 import { randomUUID } from "node:crypto";
 import { db } from "@/src/lib/prisma";
 import { Message } from "ai";
@@ -42,8 +42,6 @@ export default async function Page({
         createdAt: message.createdAt ? message.createdAt : undefined,
       })) as Message[])
     : undefined;
-
-  // console.log({ initialMessages });
 
   return (
     <SidebarProvider defaultOpen={isSidebarOpened}>
