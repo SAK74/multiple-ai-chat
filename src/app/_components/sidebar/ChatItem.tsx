@@ -62,9 +62,7 @@ export const ChatItem: FC<{
               <MessageSquareMoreIcon />
               <span className="text-sm overflow-hidden text-left">
                 <div className="text-sm font-semibold text-ellipsis overflow-hidden whitespace-pre">
-                  {chat.name
-                    ? chat.name
-                    : chat.messages[1].content.slice(0, 30)}
+                  {chat.name || chat.messages[1].content.slice(0, 30)}
                 </div>
                 <div className="text-xs">{chat.created.toLocaleString()}</div>
               </span>
@@ -92,7 +90,10 @@ export const ChatItem: FC<{
         <form onSubmit={handleSubmit}>
           <Input
             name="newName"
-            defaultValue={chat.name ? chat.name : undefined}
+            defaultValue={chat.name || undefined}
+            ref={(input) => {
+              input?.focus();
+            }}
           />
         </form>
       )}

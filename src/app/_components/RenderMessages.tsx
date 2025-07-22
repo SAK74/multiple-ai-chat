@@ -76,16 +76,22 @@ export const RenderMessages: FC<RenderMessagesProps> = ({
                 switch (part.type) {
                   case "text":
                     return (
-                      <span key={index} className="space-y-4">
+                      <div key={index} className="whitespace-pre-line">
                         <Markdown
                           rehypePlugins={[rehypeHighlight]}
                           components={{
                             pre: MarkDownPre,
+                            ol: ({ children }) => (
+                              <ol className="list-decimal pl-5">{children}</ol>
+                            ),
+                            ul: ({ children }) => (
+                              <ul className="list-disc pl-5">{children}</ul>
+                            ),
                           }}
                         >
                           {part.text}
                         </Markdown>
-                      </span>
+                      </div>
                     );
                   // case "source":
                   //   return <span key={index}>{part.source.url}</span>;

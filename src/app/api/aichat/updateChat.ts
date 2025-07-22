@@ -35,7 +35,10 @@ export async function updateChat(
       id: chatId,
       messages: { createMany: { data: prismaMessages } },
       userId,
-      name: messages[1].content.slice(0, 30),
+      name: messages[1].content
+        .replace(/^[- ]/gm, "")
+        .replace(/\n/g, " ")
+        .slice(0, 30),
     },
     update: {
       messages: { createMany: { data: prismaMessages, skipDuplicates: true } },

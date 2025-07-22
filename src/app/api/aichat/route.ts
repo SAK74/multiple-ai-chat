@@ -49,12 +49,13 @@ export async function POST(request: NextRequest) {
       async execute(dataStream) {
         dataStream.writeData("Initiation..");
         dataStream.writeMessageAnnotation({ provider });
-        const test = await new Promise<string>((resolve) => {
-          setTimeout(() => {
-            resolve("Test phase...");
-          }, 500);
-        });
-        dataStream.writeData(test);
+        // const test = await new Promise<string>((resolve) => {
+        //   setTimeout(() => {
+        //     resolve("Test phase...");
+        //   }, 500);
+        // });
+        // dataStream.writeData(test);
+        dataStream.writeData("Processing");
         const result = streamText({
           model,
           ...(system && { system }),
