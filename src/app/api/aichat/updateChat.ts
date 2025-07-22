@@ -4,7 +4,7 @@ import type { Message } from "ai";
 export async function updateChat(
   userId: string,
   chatId: string,
-  ...messages: Message[]
+  ...messages: (Message & { revisionId?: string })[]
 ) {
   try {
     await db.user.findUniqueOrThrow({ where: { id: userId } });
@@ -22,25 +22,23 @@ export async function updateChat(
   }
   const prismaMessages = messages.map((message) => {
     delete message.toolInvocations;
+    delete message.revisionId;
     return {
       ...message,
       parts: message.parts ? JSON.parse(JSON.stringify(message.parts)) : null,
     };
   });
 
-  await db.user.update({
-    where: { id: userId },
-    data: {
-      chats: {
-        upsert: {
-          where: { id: chatId },
-          create: {
-            messages: { createMany: { data: prismaMessages } },
-            name: messages[1].content.slice(0, 30),
-          },
-          update: { messages: { createMany: { data: prismaMessages } } },
-        },
-      },
+  await db.chat.upsert({
+    where: { id: chatId, userId: userId },
+    create: {
+      id: chatId,
+      messages: { createMany: { data: prismaMessages } },
+      userId,
+      name: messages[1].content.slice(0, 30),
+    },
+    update: {
+      messages: { createMany: { data: prismaMessages, skipDuplicates: true } },
     },
   });
 }

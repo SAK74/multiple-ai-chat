@@ -61,8 +61,8 @@ model User {
 }
 
 model Chat {
-  id       String    @id @default(uuid())
-  User     User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id       String    @id
+  User     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   String
   messages Message[]
   created  DateTime  @default(now())
@@ -78,8 +78,8 @@ model Message {
   annotations Json?
   parts       Json?
 
-  Chat   Chat?   @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  chatId String?
+  Chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId String
 }
 
 enum Role {
