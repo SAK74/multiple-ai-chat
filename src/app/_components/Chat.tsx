@@ -23,12 +23,14 @@ import {
   useUsage,
 } from ".";
 import { useRouter } from "next/navigation";
+import { UserContext } from "./UserCtx";
+import type { User } from "next-auth";
 
 export const Chat: FC<{
   chatId?: string;
-  userId?: string;
+  user?: User;
   initialMessages?: Message[];
-}> = ({ chatId, userId, initialMessages }) => {
+}> = ({ chatId, user, initialMessages }) => {
   const { usage, setUsage } = useUsage();
   const { assystentDescription } = useAssistant();
   const [provider, setProvider] = useState<Provider>();
@@ -50,19 +52,16 @@ export const Chat: FC<{
       }
       setStreamStatus(undefined);
 
-      if (userId) {
+      if (user?.id) {
         refresh();
       }
-      // ....
-
-      // mutate SWR??
     },
     body: {
       system: assystentDescription,
       provider,
       model,
       apiKey,
-      ...(userId && { userId }),
+      ...(user?.id && { userId: user.id }),
     },
     // experimental_prepareRequestBody({ id, messages,  }) {
     //   return {
@@ -113,9 +112,11 @@ export const Chat: FC<{
 
   return (
     <div className="px-6 w-full">
-      <ControllPanel className="py-3 px-4" {...{ apiKey, setApiKey }}>
-        {!apiKey && <Usage className="" />}
-      </ControllPanel>
+      <UserContext value={{ user }}>
+        <ControllPanel className="py-3 px-4" {...{ apiKey, setApiKey }}>
+          {!apiKey && <Usage className="" />}
+        </ControllPanel>
+      </UserContext>
 
       <RenderMessages messages={messages} setMessages={setMessages} />
       <div ref={bottomRef} className="h-4" />

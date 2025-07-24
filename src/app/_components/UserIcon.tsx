@@ -9,10 +9,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
+import { useUser } from "./UserCtx";
 
 export const UserIcon = () => {
-  const { data } = useSession();
+  const { user } = useUser();
 
   const onLogin = () => {
     signIn("github", {});
@@ -25,17 +26,15 @@ export const UserIcon = () => {
     <DropdownMenu>
       <DropdownMenuTrigger>
         <Avatar>
-          {data?.user?.image && <AvatarImage src={data.user.image} />}
-          <AvatarFallback>
-            {data?.user?.email?.slice(0, 2) ?? "?"}
-          </AvatarFallback>
+          {user?.image && <AvatarImage src={user.image} />}
+          <AvatarFallback>{user?.email?.slice(0, 2) ?? "?"}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem onClick={onLogin} disabled={!!data}>
+        <DropdownMenuItem onClick={onLogin} disabled={!!user}>
           Login by github
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onLogout} disabled={!data}>
+        <DropdownMenuItem onClick={onLogout} disabled={!user}>
           Logout
         </DropdownMenuItem>
       </DropdownMenuContent>

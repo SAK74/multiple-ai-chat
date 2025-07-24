@@ -47,13 +47,9 @@ export default async function Page({
     <SidebarProvider defaultOpen={isSidebarOpened}>
       <SideBarComp userId={user?.id} chatId={chatId} />
       <SideBarTrigger />
-      <Chat
-        chatId={chatId}
-        userId={user?.id}
-        initialMessages={initialMessages}
-      />
+      <Chat chatId={chatId} user={user} initialMessages={initialMessages} />
     </SidebarProvider>
   );
 }
 
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
