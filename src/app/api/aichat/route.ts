@@ -1,4 +1,5 @@
 import {
+  appendClientMessage,
   appendResponseMessages,
   createDataStreamResponse,
   Message,
@@ -9,32 +10,36 @@ import { getModel } from "./getModel";
 import { Provider } from "../../types";
 import { updateChat } from "./updateChat";
 import { db } from "@/src/lib/prisma";
+import { retrieveChatMessages } from "./retrieveChat";
+import { FINISH_NOTIFICATION } from "../../_constants";
 
 export async function POST(request: NextRequest) {
   try {
-    // throw Error("New Test error");
-    // console.log("cookies: ", request.cookies);
-
-    const {
-      messages,
-      system,
-      provider = "openai",
-      model: modelId,
-      apiKey,
-      id,
-      userId,
-    } = (await request.json()) as {
-      messages: Message[];
+    const params = (await request.json()) as {
+      messages?: Message[];
       system?: string;
       provider?: Provider;
       model?: string;
       apiKey?: string;
       id?: string;
       userId?: string;
+      message: Message;
     };
+    const {
+      system,
+      provider = "openai",
+      model: modelId,
+      apiKey,
+      id,
+      userId,
+      message,
+    } = params;
+    let { messages } = params;
+
     if (process.env.NODE_ENV !== "production") {
       console.log({
         // messages: JSON.stringify(messages),
+        message,
         system,
         provider,
         modelId,
@@ -50,12 +55,19 @@ export async function POST(request: NextRequest) {
       async execute(dataStream) {
         dataStream.writeData("Initiation..");
         dataStream.writeMessageAnnotation({ provider });
-        // const test = await new Promise<string>((resolve) => {
-        //   setTimeout(() => {
-        //     resolve("Test phase...");
-        //   }, 500);
-        // });
-        // dataStream.writeData(test);
+
+        if (id && userId) {
+          dataStream.writeData("Retrieve chat history..");
+          const prevMessages = (await retrieveChatMessages(
+            id,
+            userId
+          )) as unknown as Message[];
+          messages ??= appendClientMessage({
+            messages: prevMessages ?? [],
+            message,
+          });
+        }
+
         dataStream.writeData("Processing");
         const result = streamText({
           model,
@@ -63,7 +75,6 @@ export async function POST(request: NextRequest) {
           messages,
           onFinish: async ({ response }) => {
             // console.log("Response: ", JSON.stringify(response.messages));
-            // throw Error("test error");
             dataStream.writeData("Saving to db");
             // update db
             if (id && userId) {
@@ -75,13 +86,13 @@ export async function POST(request: NextRequest) {
                 userId,
                 id,
                 ...appendResponseMessages({
-                  messages,
+                  messages: [message],
                   responseMessages: response.messages,
                 })
               );
             }
 
-            dataStream.writeData("Finished");
+            dataStream.writeData(FINISH_NOTIFICATION);
           },
         });
         if (process.env.NODE_ENV !== "production") {

@@ -38,84 +38,91 @@ export const RenderMessages: FC<RenderMessagesProps> = ({
   };
   return (
     <>
-      {messages.map((message) => {
-        const provider = message.annotations?.find(
-          (adnot): adnot is { provider: Provider } =>
-            typeof adnot === "object" &&
-            adnot !== null &&
-            "provider" in adnot &&
-            typeof (adnot as { provider: Provider }).provider === "string"
-        )?.provider;
-        return (
-          <div
-            key={message.id}
-            className={cn("my-2 flex items-center gap-2 justify-center", {
-              "justify-end": message.role === "user",
-            })}
-          >
-            {message.role === "user" && <strong>You: </strong>}
-            {message.role === "assistant" && provider && (
-              <Image
-                src={logos[provider].icon}
-                alt="provider_logo"
-                width={25}
-                height={25}
-                className={cn("self-start mt-2", logos[provider].className)}
-              />
-            )}
+      {messages
+        .sort(
+          (a, b) =>
+            (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0)
+        )
+        .map((message) => {
+          const provider = message.annotations?.find(
+            (adnot): adnot is { provider: Provider } =>
+              typeof adnot === "object" &&
+              adnot !== null &&
+              "provider" in adnot &&
+              typeof (adnot as { provider: Provider }).provider === "string"
+          )?.provider;
+          return (
             <div
-              className={cn(
-                "rounded-lg border border-foreground border-dotted p-2 text-left overflow-x-auto max-w-11/12",
-                {
-                  "border-solid bg-gray-300 max-w-1/2 dark:bg-gray-600":
-                    message.role === "user",
-                }
-              )}
-            >
-              {message.parts.map((part, index) => {
-                switch (part.type) {
-                  case "text":
-                    return (
-                      <div key={index} className="whitespace-pre-line">
-                        <Markdown
-                          rehypePlugins={[rehypeHighlight]}
-                          components={{
-                            pre: MarkDownPre,
-                            ol: ({ children }) => (
-                              <ol className="list-decimal pl-5">{children}</ol>
-                            ),
-                            ul: ({ children }) => (
-                              <ul className="list-disc pl-5">{children}</ul>
-                            ),
-                          }}
-                        >
-                          {part.text}
-                        </Markdown>
-                      </div>
-                    );
-                  // case "source":
-                  //   return <span key={index}>{part.source.url}</span>;
-                }
+              key={message.id}
+              className={cn("my-2 flex items-center gap-2 justify-center", {
+                "justify-end": message.role === "user",
               })}
-            </div>
-            <span className="*:size-4 *:cursor-pointer">
-              {message.role === "user" && (
-                <Tooltip label="Edit message">
-                  <PencilIcon />
-                </Tooltip>
+            >
+              {message.role === "user" && <strong>You: </strong>}
+              {message.role === "assistant" && provider && (
+                <Image
+                  src={logos[provider].icon}
+                  alt="provider_logo"
+                  width={25}
+                  height={25}
+                  className={cn("self-start mt-2", logos[provider].className)}
+                />
               )}
-              <Tooltip
-                label="Remove message from the chat"
-                onClick={() => {
-                  deleteMessage(message.id);
-                }}
+              <div
+                className={cn(
+                  "rounded-lg border border-foreground border-dotted p-2 text-left overflow-x-auto max-w-11/12",
+                  {
+                    "border-solid bg-gray-300 max-w-1/2 dark:bg-gray-600":
+                      message.role === "user",
+                  }
+                )}
               >
-                <Trash2Icon />
-              </Tooltip>
-            </span>
-          </div>
-        );
-      })}
+                {message.parts.map((part, index) => {
+                  switch (part.type) {
+                    case "text":
+                      return (
+                        <div key={index} className="whitespace-pre-line">
+                          <Markdown
+                            rehypePlugins={[rehypeHighlight]}
+                            components={{
+                              pre: MarkDownPre,
+                              ol: ({ children }) => (
+                                <ol className="list-decimal pl-5">
+                                  {children}
+                                </ol>
+                              ),
+                              ul: ({ children }) => (
+                                <ul className="list-disc pl-5">{children}</ul>
+                              ),
+                            }}
+                          >
+                            {part.text}
+                          </Markdown>
+                        </div>
+                      );
+                    // case "source":
+                    //   return <span key={index}>{part.source.url}</span>;
+                  }
+                })}
+              </div>
+              <span className="*:size-4 *:cursor-pointer">
+                {message.role === "user" && (
+                  <Tooltip label="Edit message">
+                    <PencilIcon />
+                  </Tooltip>
+                )}
+                <Tooltip
+                  label="Remove message from the chat"
+                  onClick={() => {
+                    deleteMessage(message.id);
+                  }}
+                >
+                  <Trash2Icon />
+                </Tooltip>
+              </span>
+            </div>
+          );
+        })}
     </>
   );
 };

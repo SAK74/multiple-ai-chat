@@ -4,7 +4,7 @@ import type { Message } from "ai";
 export async function updateChat(
   userId: string,
   chatId: string,
-  ...messages: (Message & { revisionId?: string })[]
+  ...messages: (Message & { revisionId?: string; chatId?: string })[]
 ) {
   try {
     await db.user.findUniqueOrThrow({ where: { id: userId } });
@@ -23,6 +23,7 @@ export async function updateChat(
   const prismaMessages = messages.map((message) => {
     delete message.toolInvocations;
     delete message.revisionId;
+    delete message.chatId;
     return {
       ...message,
       parts: message.parts ? JSON.parse(JSON.stringify(message.parts)) : null,

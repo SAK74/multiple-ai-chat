@@ -11,7 +11,7 @@ import {
 } from "react";
 import type { ModelId, Provider } from "../types";
 
-import { TOKENS_LIMIT } from "../_constants";
+import { FINISH_NOTIFICATION, TOKENS_LIMIT } from "../_constants";
 import { showOverdraft } from "../_tools/overdraftMessage";
 import {
   ControllPanel,
@@ -64,15 +64,19 @@ export const Chat: FC<{
       apiKey,
       ...(user?.id && { userId: user.id }),
     },
-    // experimental_prepareRequestBody({ id, messages,  }) {
-    //   return {
-    //     message: messages[0],
-    //     system: assystentDescription,
-    //     provider,
-    //     model,
-    //     apiKey,
-    //   };
-    // },
+    ...(user && {
+      experimental_prepareRequestBody({ id, messages }) {
+        return {
+          message: messages.at(-1),
+          system: assystentDescription,
+          provider,
+          model,
+          apiKey,
+          id,
+          ...(user?.id && { userId: user.id }),
+        };
+      },
+    }),
   });
 
   const {
@@ -108,7 +112,7 @@ export const Chat: FC<{
     const current = chatData?.at(-1);
     if (typeof current === "string") {
       setStreamStatus(current);
-      if (current === "Finished") {
+      if (current === FINISH_NOTIFICATION) {
         setData(undefined);
       }
     } else if (
