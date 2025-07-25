@@ -8,6 +8,7 @@ import { NextRequest } from "next/server";
 import { getModel } from "./getModel";
 import { Provider } from "../../types";
 import { updateChat } from "./updateChat";
+import { db } from "@/src/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
@@ -66,6 +67,10 @@ export async function POST(request: NextRequest) {
             dataStream.writeData("Saving to db");
             // update db
             if (id && userId) {
+              const isNewChat = await db.chat.findUnique({ where: { id } });
+              if (!isNewChat) {
+                dataStream.writeData({ newChat: true });
+              }
               await updateChat(
                 userId,
                 id,
@@ -75,6 +80,7 @@ export async function POST(request: NextRequest) {
                 })
               );
             }
+
             dataStream.writeData("Finished");
           },
         });

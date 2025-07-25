@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
 } from "@/src/components/ui/sidebar";
 import { changeChatName } from "@/src/services/changeChatName";
+import { revalidateChats } from "@/src/services/getUsersChats";
 import { removeChatById } from "@/src/services/removeChatById";
 import type { Chat, Message } from "@prisma/client";
 import {
@@ -22,18 +23,15 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { type FC, type FormEventHandler, useState } from "react";
 
 export const ChatItem: FC<{
   chat: Chat & { messages: Message[] };
   chatId?: string;
 }> = ({ chat, chatId }) => {
-  const { refresh } = useRouter();
-
   const onRemoveClick = async () => {
     await removeChatById(chat.id);
-    refresh();
+    revalidateChats();
   };
 
   const [isEditMode, setIsEditMode] = useState(false);
@@ -46,8 +44,8 @@ export const ChatItem: FC<{
     ev.preventDefault();
     const newName = (ev.currentTarget["newName"] as HTMLInputElement).value;
     await changeChatName(chat.id, newName);
+    revalidateChats();
     setIsEditMode(false);
-    refresh();
   };
   return (
     <SidebarMenuItem key={chat.id}>

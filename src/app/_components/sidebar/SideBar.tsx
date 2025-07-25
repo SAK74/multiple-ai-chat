@@ -7,24 +7,24 @@ import {
   SidebarMenu,
   SidebarMenuButton,
 } from "@/src/components/ui/sidebar";
-import { db } from "@/src/lib/prisma";
 import { FileQuestionMarkIcon, PencilLineIcon } from "lucide-react";
 import Link from "next/link";
 import { randomUUID } from "node:crypto";
 import type { FC } from "react";
 import { ChatItem } from "./ChatItem";
+import { Chat, Message } from "@prisma/client";
+import { getUsersChats as cachedUsersChats } from "@/src/services/getUsersChats";
 
 export const SideBarComp: FC<{ userId?: string; chatId?: string }> = async ({
   userId,
   chatId,
 }) => {
-  const chats = !userId
-    ? []
-    : await db.chat.findMany({
-        include: { messages: true },
-        where: { userId },
-        orderBy: { created: "desc" },
-      });
+  let chats: (Chat & { messages: Message[] })[] = [];
+  if (userId) {
+    const getUsersChats = await cachedUsersChats(userId);
+    chats = await getUsersChats(userId);
+  }
+
   return (
     <Sidebar className="pt-16" collapsible="icon" variant="floating">
       <SidebarContent className="p-2 gap-0">

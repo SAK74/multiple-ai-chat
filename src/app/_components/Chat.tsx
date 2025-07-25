@@ -25,6 +25,7 @@ import {
 import { useRouter } from "next/navigation";
 import { UserContext } from "./UserCtx";
 import type { User } from "next-auth";
+import { revalidateChats } from "@/src/services/getUsersChats";
 
 export const Chat: FC<{
   chatId?: string;
@@ -81,6 +82,7 @@ export const Chat: FC<{
     error,
     status,
     data: chatData,
+    setData,
   } = chat;
   const isActive = useMemo(
     () => usage < TOKENS_LIMIT || Boolean(apiKey),
@@ -106,13 +108,24 @@ export const Chat: FC<{
     const current = chatData?.at(-1);
     if (typeof current === "string") {
       setStreamStatus(current);
+      if (current === "Finished") {
+        setData(undefined);
+      }
+    } else if (
+      current !== null &&
+      typeof current === "object" &&
+      "newChat" in current
+    ) {
+      revalidateChats();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatData?.length]);
 
+  const memoUser = useMemo(() => user, [user]);
+
   return (
     <div className="px-6 w-full">
-      <UserContext value={{ user }}>
+      <UserContext value={{ user: memoUser }}>
         <ControllPanel className="py-3 px-4" {...{ apiKey, setApiKey }}>
           {!apiKey && <Usage className="" />}
         </ControllPanel>
