@@ -2,7 +2,7 @@ import {
   appendClientMessage,
   appendResponseMessages,
   createDataStreamResponse,
-  Message,
+  type Message,
   streamText,
 } from "ai";
 import { NextRequest } from "next/server";
@@ -88,7 +88,12 @@ export async function POST(request: NextRequest) {
                 ...appendResponseMessages({
                   messages: [message],
                   responseMessages: response.messages,
-                })
+                }).map((mess) => ({
+                  ...mess,
+                  ...(mess.role === "assistant" && {
+                    annotations: [{ provider }],
+                  }),
+                }))
               );
             }
 
