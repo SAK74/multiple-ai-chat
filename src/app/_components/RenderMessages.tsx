@@ -11,6 +11,8 @@ import gptLogo from "@/src/assets/chatgpt.svg";
 import Image from "next/image";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 import { Tooltip } from "@/src/components/Tooltip";
+import { useParams } from "next/navigation";
+import { removMessFromChat } from "@/src/actions/removeMessFromChat";
 
 const logos: {
   [k in Provider]: {
@@ -33,8 +35,17 @@ export const RenderMessages: FC<RenderMessagesProps> = ({
   messages,
   setMessages,
 }) => {
+  const resolvedChatParam = useParams().chatId;
+
+  const chatId = Array.isArray(resolvedChatParam)
+    ? resolvedChatParam[0]
+    : resolvedChatParam;
+
   const deleteMessage = (id: Message["id"]) => {
     setMessages(messages.filter((mess) => mess.id !== id));
+    if (chatId) {
+      removMessFromChat(chatId, id);
+    }
   };
   return (
     <>
