@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { type FC, type FormEventHandler, useState } from "react";
+import { Spinner } from "../Spinner";
 
 export const ChatItem: FC<{
   chat: Chat & { messages: Message[] };
@@ -40,12 +41,16 @@ export const ChatItem: FC<{
     setIsEditMode(true);
   };
 
+  const [isUpdating, setIsUpdating] = useState(false);
+
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (ev) => {
     ev.preventDefault();
     setIsEditMode(false);
+    setIsUpdating(true);
     const newName = (ev.currentTarget["newName"] as HTMLInputElement).value;
     await changeChatName(chat.id, newName);
-    revalidateChats();
+    await revalidateChats();
+    setIsUpdating(false);
   };
   return (
     <SidebarMenuItem key={chat.id}>
@@ -66,23 +71,29 @@ export const ChatItem: FC<{
               </span>
             </Link>
           </SidebarMenuButton>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <SidebarMenuAction className="cursor-pointer">
-                <EllipsisIcon className="hidden group-hover/menu-item:block" />
-              </SidebarMenuAction>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={onEditClick}>
-                <PencilIcon />
-                <span>Edit title</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onRemoveClick}>
-                <Trash2Icon />
-                <span>Remove</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {!isUpdating ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuAction className="cursor-pointer">
+                  <EllipsisIcon className="hidden group-hover/menu-item:block" />
+                </SidebarMenuAction>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={onEditClick}>
+                  <PencilIcon />
+                  <span>Edit title</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onRemoveClick}>
+                  <Trash2Icon />
+                  <span>Remove</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <SidebarMenuAction disabled>
+              <Spinner />
+            </SidebarMenuAction>
+          )}
         </>
       ) : (
         <form onSubmit={handleSubmit}>
