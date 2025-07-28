@@ -6,16 +6,7 @@ import { Toaster } from "../components/ui/sonner";
 import { auth } from "../auth";
 import { SessionProvider } from "next-auth/react";
 import { authConfig } from "../auth.config";
-
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "AI-chat",
@@ -34,15 +25,14 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-      // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body>
         <ThemeProvider attribute={"class"} enableSystem defaultTheme="system">
           <SessionProvider session={session} basePath={authConfig.basePath}>
             {children}
           </SessionProvider>
           <Toaster />
         </ThemeProvider>
+        {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
     </html>
   );
