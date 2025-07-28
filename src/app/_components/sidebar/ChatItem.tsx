@@ -42,10 +42,10 @@ export const ChatItem: FC<{
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (ev) => {
     ev.preventDefault();
+    setIsEditMode(false);
     const newName = (ev.currentTarget["newName"] as HTMLInputElement).value;
     await changeChatName(chat.id, newName);
     revalidateChats();
-    setIsEditMode(false);
   };
   return (
     <SidebarMenuItem key={chat.id}>
