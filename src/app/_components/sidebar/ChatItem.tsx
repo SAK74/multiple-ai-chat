@@ -23,7 +23,13 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import Link from "next/link";
-import { type FC, type FormEventHandler, useState } from "react";
+import {
+  type FC,
+  type FormEventHandler,
+  useOptimistic,
+  useState,
+  useTransition,
+} from "react";
 import { Spinner } from "../Spinner";
 
 export const ChatItem: FC<{
@@ -41,19 +47,28 @@ export const ChatItem: FC<{
     setIsEditMode(true);
   };
 
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [chatName, addOptimistic] = useOptimistic(
+    chat.name ?? undefined,
+    (_, newName: string) => {
+      return newName;
+    }
+  );
+
+  const [isUpdating, startTransition] = useTransition();
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (ev) => {
     ev.preventDefault();
     setIsEditMode(false);
-    setIsUpdating(true);
     const newName = (ev.currentTarget["newName"] as HTMLInputElement).value;
-    await changeChatName(chat.id, newName);
-    await revalidateChats();
-    setIsUpdating(false);
+    startTransition(async () => {
+      addOptimistic(newName);
+      await changeChatName(chat.id, newName);
+      await revalidateChats();
+    });
   };
+
   return (
-    <SidebarMenuItem key={chat.id}>
+    <SidebarMenuItem>
       {!isEditMode ? (
         <>
           <SidebarMenuButton
@@ -61,11 +76,11 @@ export const ChatItem: FC<{
             className="hover:bg-accent/80"
             isActive={chat.id === chatId}
           >
-            <Link href={`/${chat.id}`} className="">
+            <Link href={`/${chat.id}`}>
               <MessageSquareMoreIcon />
               <span className="text-sm overflow-hidden text-left">
                 <div className="text-sm font-semibold text-ellipsis overflow-hidden whitespace-pre">
-                  {chat.name || chat.messages[1].content.slice(0, 30)}
+                  {chatName ?? "<unknown>"}
                 </div>
                 <div className="text-xs">{chat.created.toLocaleString()}</div>
               </span>
@@ -99,7 +114,7 @@ export const ChatItem: FC<{
         <form onSubmit={handleSubmit}>
           <Input
             name="newName"
-            defaultValue={chat.name || undefined}
+            defaultValue={chat.name ?? undefined}
             ref={(input) => {
               input?.focus();
             }}
