@@ -1,5 +1,11 @@
 import { Textarea } from "@/src/components/ui/textarea";
-import type { Dispatch, FC, FormEventHandler, SetStateAction } from "react";
+import {
+  memo,
+  type Dispatch,
+  type FC,
+  type FormEventHandler,
+  type SetStateAction,
+} from "react";
 import { ModelSelector } from "./ModelSelector";
 import type { ModelId, Provider } from "../types";
 import { Button } from "@/src/components/ui/button";
@@ -13,7 +19,10 @@ import { Tooltip } from "@/src/components/Tooltip";
 import type { UseChatHelpers } from "@ai-sdk/react";
 import { cn } from "@/src/lib/utils";
 
-type PromtFormProps = Partial<UseChatHelpers> & {
+type PromtFormProps = Pick<
+  UseChatHelpers,
+  "input" | "handleInputChange" | "reload" | "setMessages" | "status"
+> & {
   onQuerySubmit: FormEventHandler;
   provider?: Provider;
   setProvider: Dispatch<SetStateAction<Provider | undefined>>;
@@ -22,7 +31,7 @@ type PromtFormProps = Partial<UseChatHelpers> & {
   isActive: boolean;
 };
 
-export const PromtForm: FC<PromtFormProps> = ({
+const RenderedPromtForm: FC<PromtFormProps> = ({
   input,
   onQuerySubmit,
   handleInputChange,
@@ -117,3 +126,5 @@ export const PromtForm: FC<PromtFormProps> = ({
     </form>
   );
 };
+
+export const PromptForm = memo(RenderedPromtForm);

@@ -1,3 +1,5 @@
+"use client";
+
 import type { User } from "next-auth";
 import { createContext, use } from "react";
 

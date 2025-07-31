@@ -1,8 +1,10 @@
 "use client";
 
-import { Message, useChat } from "@ai-sdk/react";
+import { type Message, useChat } from "@ai-sdk/react";
 import {
   FC,
+  use,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -15,7 +17,7 @@ import { FINISH_NOTIFICATION, TOKENS_LIMIT } from "../_constants";
 import { showOverdraft } from "../_tools/overdraftMessage";
 import {
   ControllPanel,
-  PromtForm,
+  PromptForm,
   RenderMessages,
   Spinner,
   Usage,
@@ -30,8 +32,8 @@ import { revalidateChats } from "@/src/services/getUsersChats";
 export const Chat: FC<{
   chatId?: string;
   user?: User;
-  initialMessages?: Message[];
-}> = ({ chatId, user, initialMessages }) => {
+  initialMessagesPromise: Promise<Message[] | undefined>;
+}> = ({ chatId, user, initialMessagesPromise }) => {
   const { usage, setUsage } = useUsage();
   const { assystentDescription } = useAssistant();
   const [provider, setProvider] = useState<Provider>();
@@ -39,8 +41,19 @@ export const Chat: FC<{
   const [apiKey, setApiKey] = useState<string | undefined>();
 
   const { refresh } = useRouter();
-
-  const chat = useChat({
+  const initialMessages = use(initialMessagesPromise);
+  const {
+    messages,
+    handleSubmit,
+    setMessages,
+    error,
+    status,
+    data: chatData,
+    setData,
+    input,
+    handleInputChange,
+    reload,
+  } = useChat({
     api: "/api/aichat",
     id: chatId,
     sendExtraMessageFields: true,
@@ -79,15 +92,6 @@ export const Chat: FC<{
     }),
   });
 
-  const {
-    messages,
-    handleSubmit,
-    setMessages,
-    error,
-    status,
-    data: chatData,
-    setData,
-  } = chat;
   const isActive = useMemo(
     () => usage < TOKENS_LIMIT || Boolean(apiKey),
     [usage, apiKey]
@@ -98,14 +102,17 @@ export const Chat: FC<{
     bottomRef.current?.scrollIntoView();
   }, [messages]);
 
-  const onQuerySubmit: FormEventHandler = (ev) => {
-    if (!isActive) {
-      ev.preventDefault();
-      showOverdraft();
-      return;
-    }
-    handleSubmit(ev);
-  };
+  const onQuerySubmit: FormEventHandler = useCallback(
+    (ev) => {
+      if (!isActive) {
+        ev.preventDefault();
+        showOverdraft();
+        return;
+      }
+      handleSubmit(ev);
+    },
+    [handleSubmit, isActive]
+  );
 
   const [streamStatus, setStreamStatus] = useState<string>();
   useEffect(() => {
@@ -135,7 +142,7 @@ export const Chat: FC<{
         </ControllPanel>
       </UserContext>
 
-      <RenderMessages messages={messages} setMessages={setMessages} />
+      <RenderMessages {...{ messages, setMessages, chatId }} />
       <div ref={bottomRef} className="h-4" />
       {status === "submitted" && (
         <div className="inline-block">
@@ -147,9 +154,13 @@ export const Chat: FC<{
         <p className="text-destructive/85">{error?.message}</p>
       )}
 
-      <PromtForm
+      <PromptForm
         {...{
-          ...chat,
+          input,
+          handleInputChange,
+          status,
+          reload,
+          setMessages,
           provider,
           setProvider,
           model,

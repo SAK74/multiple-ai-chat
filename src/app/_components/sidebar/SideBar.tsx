@@ -11,20 +11,18 @@ import { FileQuestionMarkIcon, PencilLineIcon } from "lucide-react";
 import Link from "next/link";
 import { randomUUID } from "node:crypto";
 import type { FC } from "react";
-import { ChatItem } from "./ChatItem";
-import { Chat, Message } from "@prisma/client";
-import { getUsersChats as cachedUsersChats } from "@/src/services/getUsersChats";
+import dynamic from "next/dynamic";
+import { Spinner } from "../Spinner";
+
+const ChatHistory = dynamic(
+  () => import("./ChatHistory").then((m) => m.ChatHistory),
+  { loading: () => <Spinner /> }
+);
 
 export const SideBarComp: FC<{ userId?: string; chatId?: string }> = async ({
   userId,
   chatId,
 }) => {
-  let chats: (Chat & { messages: Message[] })[] = [];
-  if (userId) {
-    const getUsersChats = await cachedUsersChats(userId);
-    chats = await getUsersChats(userId);
-  }
-
   return (
     <Sidebar className="pt-16" collapsible="icon" variant="floating">
       <SidebarContent className="p-2 gap-0">
@@ -42,9 +40,7 @@ export const SideBarComp: FC<{ userId?: string; chatId?: string }> = async ({
               <SidebarGroupLabel>History</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu className="gap-3">
-                  {chats.map((chat) => (
-                    <ChatItem key={chat.id} {...{ chat, chatId }} />
-                  ))}
+                  <ChatHistory {...{ chatId, userId }} />
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
