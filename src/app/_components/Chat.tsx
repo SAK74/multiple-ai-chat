@@ -3,13 +3,13 @@
 import { type Message, useChat } from "@ai-sdk/react";
 import {
   FC,
+  FormEvent,
   use,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
-  type FormEventHandler,
 } from "react";
 import type { ModelId, Provider } from "../types";
 
@@ -24,10 +24,12 @@ import {
   useAssistant,
   useUsage,
 } from ".";
-import { useRouter } from "next/navigation";
 import { UserContext } from "./UserCtx";
 import type { User } from "next-auth";
 import { revalidateChats } from "@/src/services/getUsersChats";
+import type { ChatRequestOptions } from "ai";
+import { useSidebar } from "@/src/components/ui/sidebar";
+import { cn } from "@/src/lib/utils";
 
 export const Chat: FC<{
   chatId?: string;
@@ -40,7 +42,7 @@ export const Chat: FC<{
   const [model, setModel] = useState<ModelId | undefined>();
   const [apiKey, setApiKey] = useState<string | undefined>();
 
-  const { refresh } = useRouter();
+  // const { refresh } = useRouter();
   const initialMessages = use(initialMessagesPromise);
   const {
     messages,
@@ -66,9 +68,9 @@ export const Chat: FC<{
       }
       setStreamStatus(undefined);
 
-      if (user?.id) {
-        refresh();
-      }
+      // if (user?.id) {
+      //   // refresh(); ???
+      // }
     },
     body: {
       system: assystentDescription,
@@ -102,14 +104,14 @@ export const Chat: FC<{
     bottomRef.current?.scrollIntoView();
   }, [messages]);
 
-  const onQuerySubmit: FormEventHandler = useCallback(
-    (ev) => {
+  const onQuerySubmit = useCallback(
+    (ev: FormEvent, options?: ChatRequestOptions) => {
       if (!isActive) {
         ev.preventDefault();
         showOverdraft();
         return;
       }
-      handleSubmit(ev);
+      handleSubmit(ev, options);
     },
     [handleSubmit, isActive]
   );
@@ -134,8 +136,16 @@ export const Chat: FC<{
 
   const memoUser = useMemo(() => user, [user]);
 
+  const { isMobile, open: isSidebarOpen } = useSidebar();
+
   return (
-    <div className="px-6 w-full">
+    <div
+      className={cn("px-6 w-full", {
+        "max-w-[calc(100%_-_var(--sidebar-width)_-_28px)]":
+          !isMobile && isSidebarOpen,
+        "max-w-[calc(100%_-_66px_-_28px)]": !isMobile && !isSidebarOpen,
+      })}
+    >
       <UserContext value={{ user: memoUser }}>
         <ControllPanel className="py-3 px-4" {...{ apiKey, setApiKey }}>
           {!apiKey && <Usage className="" />}
@@ -151,7 +161,7 @@ export const Chat: FC<{
       )}
       {streamStatus}
       {status === "error" && (
-        <p className="text-destructive/85">{error?.message}</p>
+        <p className="text-destructive/85 wrap-anywhere">{error?.message}</p>
       )}
 
       <PromptForm
@@ -168,6 +178,7 @@ export const Chat: FC<{
           isActive,
           onQuerySubmit,
         }}
+        className="sticky bottom-4 bg-background"
       />
     </div>
   );
