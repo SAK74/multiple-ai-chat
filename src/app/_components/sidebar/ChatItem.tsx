@@ -31,14 +31,18 @@ import {
   useTransition,
 } from "react";
 import { Spinner } from "../Spinner";
+import { useRouter } from "next/navigation";
+import { v4 as uuid } from "uuid";
 
 export const ChatItem: FC<{
   chat: Chat & { messages: Message[] };
   chatId?: string;
 }> = ({ chat, chatId }) => {
+  const { replace } = useRouter();
   const onRemoveClick = async () => {
     await removeChatById(chat.id);
     revalidateChats();
+    replace(uuid());
   };
 
   const [isEditMode, setIsEditMode] = useState(false);

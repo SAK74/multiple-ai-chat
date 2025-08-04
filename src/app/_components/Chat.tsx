@@ -24,7 +24,6 @@ import {
   useAssistant,
   useUsage,
 } from ".";
-import { useRouter } from "next/navigation";
 import { UserContext } from "./UserCtx";
 import type { User } from "next-auth";
 import { revalidateChats } from "@/src/services/getUsersChats";
@@ -43,7 +42,7 @@ export const Chat: FC<{
   const [model, setModel] = useState<ModelId | undefined>();
   const [apiKey, setApiKey] = useState<string | undefined>();
 
-  const { refresh } = useRouter();
+  // const { refresh } = useRouter();
   const initialMessages = use(initialMessagesPromise);
   const {
     messages,
@@ -69,9 +68,9 @@ export const Chat: FC<{
       }
       setStreamStatus(undefined);
 
-      if (user?.id) {
-        refresh();
-      }
+      // if (user?.id) {
+      //   // refresh(); ???
+      // }
     },
     body: {
       system: assystentDescription,
@@ -137,7 +136,7 @@ export const Chat: FC<{
 
   const memoUser = useMemo(() => user, [user]);
 
-  const { isMobile, state: sidebarState, open: isSidebarOpen } = useSidebar();
+  const { isMobile, open: isSidebarOpen } = useSidebar();
 
   return (
     <div
