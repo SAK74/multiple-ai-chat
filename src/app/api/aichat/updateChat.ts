@@ -1,5 +1,6 @@
 import { db } from "@/src/lib/prisma";
 import type { Message } from "ai";
+import { compress } from "./compress";
 
 export async function updateChat(
   userId: string,
@@ -30,11 +31,30 @@ export async function updateChat(
     };
   });
 
+  const compressedMessages = await Promise.all(
+    prismaMessages.map(async (mess) => {
+      if (mess.experimental_attachments) {
+        const compressedAttachments = await Promise.all(
+          mess.experimental_attachments.map(async (att) => {
+            const { url, contentType } = await compress(att.url);
+            return {
+              ...att,
+              url,
+              contentType,
+            };
+          })
+        );
+        return { ...mess, experimental_attachments: compressedAttachments };
+      }
+      return mess;
+    })
+  );
+
   await db.chat.upsert({
     where: { id: chatId, userId: userId },
     create: {
       id: chatId,
-      messages: { createMany: { data: prismaMessages } },
+      messages: { createMany: { data: compressedMessages } },
       userId,
       name: messages[1].content
         .replace(/^[- ]/gm, "")
@@ -42,7 +62,9 @@ export async function updateChat(
         .slice(0, 30),
     },
     update: {
-      messages: { createMany: { data: prismaMessages, skipDuplicates: true } },
+      messages: {
+        createMany: { data: compressedMessages, skipDuplicates: true },
+      },
     },
   });
 }

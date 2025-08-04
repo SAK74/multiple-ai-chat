@@ -87,14 +87,14 @@ const RenderedMessage: FC<{
         {message.role === "user" && (
           <div className="flex gap-1">
             {message.experimental_attachments?.map((attachment, i) => (
-              <Image
-                width={144}
-                height={120}
-                key={i}
-                src={attachment.url}
-                alt={attachment.name ?? "attachment"}
-                className="object-contain"
-              />
+              <div key={i} className="w-40 h-40 relative">
+                <Image
+                  fill
+                  src={attachment.url}
+                  alt={attachment.name ?? "attachment"}
+                  className="object-contain"
+                />
+              </div>
             ))}
           </div>
         )}
