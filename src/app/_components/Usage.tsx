@@ -13,7 +13,8 @@ export const Usage: FC<{ className?: string }> = ({ className }) => {
     <div className={cn("relative", className)}>
       <div className="px-4 h-0">{content}</div>
       <Progress
-        value={status}
+        max={100}
+        value={Math.min(status, 100)}
         className={cn(
           "h-6 bg-secondary opacity-50 *:bg-green-500 border border-primary rounded-md",
           { "*:bg-yellow-500": status > 34 },

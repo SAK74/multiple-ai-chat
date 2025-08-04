@@ -1,6 +1,7 @@
 import {
   appendClientMessage,
   appendResponseMessages,
+  convertToCoreMessages,
   createDataStreamResponse,
   type Message,
   streamText,
@@ -72,14 +73,14 @@ export async function POST(request: NextRequest) {
         const result = streamText({
           model,
           ...(system && { system }),
-          messages,
+          messages: convertToCoreMessages(messages!),
           onFinish: async ({ response }) => {
             // console.log("Response: ", JSON.stringify(response.messages));
             dataStream.writeData("Saving to db");
             // update db
             if (id && userId) {
-              const isNewChat = await db.chat.findUnique({ where: { id } });
-              if (!isNewChat) {
+              const isOldChat = await db.chat.findUnique({ where: { id } });
+              if (!isOldChat) {
                 dataStream.writeData({ newChat: true });
               }
               await updateChat(

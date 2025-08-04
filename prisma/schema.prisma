@@ -59,13 +59,13 @@ model Chat {
 }
 
 model Message {
-  id          String    @id
-  createdAt   DateTime?
-  content     String
-  // experimental_attachments?: Attachment[];
-  role        Role
-  annotations Json?
-  parts       Json?
+  id                       String    @id
+  createdAt                DateTime?
+  content                  String
+  role                     Role
+  annotations              Json?
+  parts                    Json?
+  experimental_attachments Json?
 
   Chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId String

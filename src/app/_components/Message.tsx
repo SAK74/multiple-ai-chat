@@ -54,7 +54,7 @@ const RenderedMessage: FC<{
         className={cn(
           "rounded-lg border border-foreground border-dotted p-2 text-left overflow-x-auto max-w-11/12",
           {
-            "border-solid bg-gray-300 max-w-1/2 dark:bg-gray-600":
+            "border-solid bg-gray-300 max-w-3/4 dark:bg-gray-600":
               message.role === "user",
           }
         )}
@@ -84,6 +84,20 @@ const RenderedMessage: FC<{
             //   return <span key={index}>{part.source.url}</span>;
           }
         })}
+        {message.role === "user" && (
+          <div className="flex gap-1">
+            {message.experimental_attachments?.map((attachment, i) => (
+              <Image
+                width={144}
+                height={120}
+                key={i}
+                src={attachment.url}
+                alt={attachment.name ?? "attachment"}
+                className="object-contain"
+              />
+            ))}
+          </div>
+        )}
       </div>
       <span className="*:size-4 *:cursor-pointer">
         <Tooltip
