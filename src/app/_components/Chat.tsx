@@ -42,7 +42,6 @@ export const Chat: FC<{
   const [model, setModel] = useState<ModelId | undefined>();
   const [apiKey, setApiKey] = useState<string | undefined>();
 
-  // const { refresh } = useRouter();
   const initialMessages = use(initialMessagesPromise);
   const {
     messages,
@@ -67,10 +66,6 @@ export const Chat: FC<{
         showOverdraft();
       }
       setStreamStatus(undefined);
-
-      // if (user?.id) {
-      //   // refresh(); ???
-      // }
     },
     body: {
       system: assystentDescription,

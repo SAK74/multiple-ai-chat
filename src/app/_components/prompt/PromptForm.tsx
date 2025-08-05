@@ -56,7 +56,7 @@ const RenderedPromtForm: FC<
 
   const reactId = useId();
 
-  const attachmentsRef = useRef<Set<HTMLImageElement | null>>(new Set());
+  const attachmentsRef = useRef<Set<string>>(new Set());
 
   const onSubmit: FormEventHandler = (ev) => {
     ev.preventDefault();
@@ -69,10 +69,8 @@ const RenderedPromtForm: FC<
     }
 
     // remove object url's from memory
-    attachmentsRef.current.forEach((img) => {
-      if (img) {
-        URL.revokeObjectURL(img.src);
-      }
+    attachmentsRef.current.forEach((src) => {
+      URL.revokeObjectURL(src);
     });
     attachmentsRef.current.clear();
   };
@@ -148,7 +146,18 @@ const RenderedPromtForm: FC<
             className="hidden"
             ref={inpuFileRef}
             onChange={({ target: { files } }) => {
-              setFiles(files);
+              setFiles((prevFiles) => {
+                const existingFiles = new Set();
+                const dataTransfer = new DataTransfer();
+                [...(prevFiles ?? []), ...(files ?? [])].forEach((file) => {
+                  const key = `${file.name}-${file.lastModified}`;
+                  if (!existingFiles.has(key)) {
+                    dataTransfer.items.add(file);
+                  }
+                  existingFiles.add(key);
+                });
+                return dataTransfer.files;
+              });
             }}
           />
         </div>
