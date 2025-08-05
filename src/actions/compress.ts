@@ -1,8 +1,9 @@
+"use server";
+
+import { EXPECT_FORMAT } from "@/src/_constants";
 import sharp from "sharp";
 
-const EXPECT_FORMAT: "webp" | "jpeg" | "png" | "tiff" | "gif" = "webp";
-
-export async function compress(dataUrl: string) {
+export async function compressFRomDataUrl(dataUrl: string, resize?: boolean) {
   const matches = dataUrl.match(/^data:image\/(.+);base64,(.+)$/);
   if (!matches) {
     throw Error("Wrong image data url");
@@ -21,4 +22,8 @@ export async function compress(dataUrl: string) {
       "data:image/" + EXPECT_FORMAT + ";base64," + resBuffer.toString("base64"),
     contentType: `image/${EXPECT_FORMAT}`,
   };
+}
+
+export async function compresFromFile(arrayBUffer: ArrayBuffer) {
+  return await sharp(arrayBUffer).webp().toBuffer();
 }
