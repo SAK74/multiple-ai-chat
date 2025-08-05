@@ -12,11 +12,11 @@ import Link from "next/link";
 import { randomUUID } from "node:crypto";
 import type { FC } from "react";
 import dynamic from "next/dynamic";
-import { Spinner } from "../Spinner";
+import { ChatHistorySkeleton } from "./ChatsSkeleton";
 
 const ChatHistory = dynamic(
   () => import("./ChatHistory").then((m) => m.ChatHistory),
-  { loading: () => <Spinner /> }
+  { loading: () => <ChatHistorySkeleton /> }
 );
 
 export const SideBarComp: FC<{ userId?: string; chatId?: string }> = async ({
