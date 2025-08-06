@@ -1,4 +1,5 @@
-import { compressFRomDataUrl } from "@/src/actions/compress";
+import { IMAGE_DB_RESOLUTION } from "@/src/_constants";
+import { compressFRomDataUrl } from "@/src/app/api/aichat/compress";
 import { db } from "@/src/lib/prisma";
 import type { Message } from "ai";
 
@@ -36,7 +37,10 @@ export async function updateChat(
       if (mess.experimental_attachments) {
         const compressedAttachments = await Promise.all(
           mess.experimental_attachments.map(async (att) => {
-            const { url, contentType } = await compressFRomDataUrl(att.url);
+            const { url, contentType } = await compressFRomDataUrl(
+              att.url,
+              IMAGE_DB_RESOLUTION
+            );
             return {
               ...att,
               url,
