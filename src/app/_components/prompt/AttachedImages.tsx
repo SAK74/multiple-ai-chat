@@ -8,15 +8,15 @@ export const AttachedImages: FC<{
   attachmentsRef: RefObject<Set<string>>;
 }> = ({ files, setFiles, attachmentsRef }) => {
   return (
-    <div className="flex flex-col-reverse items-start">
+    <div className="relative group">
       {files && (
         <>
           {files.length > 1 && (
             <Button
               type="button"
-              variant={"ghost"}
+              variant={"secondary"}
               size={"sm"}
-              className="cursor-pointer scale-90 hover:scale-none"
+              className="cursor-pointer hover:scale-none absolute left-2 bottom-1 z-10 opacity-50 hover:opacity-90 scale-x-0 group-hover:scale-90"
               onClick={() => {
                 setFiles(null);
               }}
@@ -28,7 +28,7 @@ export const AttachedImages: FC<{
             {Array.from(files).map((file, i) => (
               <div
                 key={i}
-                className="relative flex flex-wrap items-center group"
+                className="relative flex flex-wrap items-center group/image"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -46,7 +46,7 @@ export const AttachedImages: FC<{
                   type="button"
                   size={"icon"}
                   variant={"ghost"}
-                  className="scale-0 group-hover:scale-none transition-transform cursor-pointer absolute right-0 top-0 hover:bg-accent/60 rounded-full dark:hover:bg-accent-foreground/30"
+                  className="scale-0 group-hover/image:scale-none transition-transform cursor-pointer absolute right-0 top-0 hover:bg-accent/60 rounded-full dark:hover:bg-accent-foreground/30"
                   onClick={() => {
                     setFiles((prevFiles) => {
                       const dataTransfer = new DataTransfer();

@@ -154,7 +154,7 @@ const RenderedPromtForm: FC<
         }}
         className="absolute -bottom-3 z-10"
       >
-        <div className="!bg-transparent grow flex justify-start">
+        <>
           {/* attchments */}
           <Tooltip label="Attach image">
             <label htmlFor={`file-${reactId}`}>
@@ -183,7 +183,7 @@ const RenderedPromtForm: FC<
               });
             }}
           />
-        </div>
+        </>
       </PromptControll>
     </form>
   );

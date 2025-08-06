@@ -41,9 +41,10 @@ export const PromptControll: FC<
         setModel={setModel}
         isActive={isActive}
       />
-
-      {/* attachments panel */}
-      {children}
+      <div className="!bg-transparent grow flex justify-start">
+        {/* attachments panel */}
+        {children}
+      </div>
 
       {/* controls */}
       <div className="flex gap-4 border rounded-lg px-5 *:cursor-pointer *:size-6">
@@ -64,7 +65,7 @@ export const PromptControll: FC<
           onClick={() => {
             stop();
           }}
-          disabled={status !== "submitted"}
+          disabled={status !== "streaming" && status !== "submitted"}
         >
           <Button size={"icon"} variant={"ghost"}>
             <BanIcon />
