@@ -13,6 +13,7 @@ import { updateChat } from "./updateChat";
 import { db } from "@/src/lib/prisma";
 import { retrieveChatMessages } from "./retrieveChat";
 import { FINISH_NOTIFICATION } from "../../_constants";
+import { filterAttachments } from "./filterMessageAttachments";
 
 export async function POST(request: NextRequest) {
   try {
@@ -65,7 +66,14 @@ export async function POST(request: NextRequest) {
           )) as unknown as Message[];
           messages ??= appendClientMessage({
             messages: prevMessages ?? [],
-            message,
+            message: {
+              ...message,
+              ...(message.experimental_attachments && {
+                experimental_attachments: await filterAttachments(
+                  message.experimental_attachments
+                ),
+              }),
+            },
           });
         }
 
