@@ -1,6 +1,6 @@
+import { compressFRomDataUrl } from "@/src/actions/compress";
 import { db } from "@/src/lib/prisma";
 import type { Message } from "ai";
-import { compress } from "./compress";
 
 export async function updateChat(
   userId: string,
@@ -36,7 +36,7 @@ export async function updateChat(
       if (mess.experimental_attachments) {
         const compressedAttachments = await Promise.all(
           mess.experimental_attachments.map(async (att) => {
-            const { url, contentType } = await compress(att.url);
+            const { url, contentType } = await compressFRomDataUrl(att.url);
             return {
               ...att,
               url,

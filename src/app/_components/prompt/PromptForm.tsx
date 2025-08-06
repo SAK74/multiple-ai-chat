@@ -20,6 +20,9 @@ import { cn } from "@/src/lib/utils";
 import type { ChatRequestOptions } from "ai";
 import { Tooltip } from "@/src/components/Tooltip";
 import { AttachedImages, PromptControll } from ".";
+import { EXPECT_FORMAT, IMAGE_AI_RESOLUTION } from "@/src/_constants";
+import { compresFromFile } from "@/src/actions/compress";
+import { getImageSize } from "@/src/services/getImageSize";
 
 export type CommonPromptProps = {
   onQuerySubmit: (ev: FormEvent, options?: ChatRequestOptions) => void;
@@ -58,10 +61,30 @@ const RenderedPromtForm: FC<
 
   const attachmentsRef = useRef<Set<string>>(new Set());
 
-  const onSubmit: FormEventHandler = (ev) => {
+  const onSubmit: FormEventHandler = async (ev) => {
     ev.preventDefault();
+
+    const dataTransfer = new DataTransfer();
+
+    await Promise.all(
+      Array.from(files ?? []).map(async (file) => {
+        let processedFile = file;
+        const { width, height } = await getImageSize(file);
+        if (
+          width > IMAGE_AI_RESOLUTION.width ||
+          height > IMAGE_AI_RESOLUTION.heigh
+        ) {
+          const compressed = await compresFromFile(await file.arrayBuffer());
+          processedFile = new File([compressed], file.name, {
+            type: `image/${EXPECT_FORMAT}`,
+          });
+        }
+        dataTransfer.items.add(processedFile);
+      })
+    );
+    const attachments = dataTransfer.files;
     onQuerySubmit(ev, {
-      ...(files?.length && { experimental_attachments: files }),
+      ...(files?.length && { experimental_attachments: attachments }),
     });
     setFiles(null);
     if (inpuFileRef.current) {
