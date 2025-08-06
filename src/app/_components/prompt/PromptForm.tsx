@@ -20,8 +20,9 @@ import { cn } from "@/src/lib/utils";
 import type { ChatRequestOptions } from "ai";
 import { Tooltip } from "@/src/components/Tooltip";
 import { AttachedImages, PromptControll } from ".";
-import { EXPECT_FORMAT, MAX_IMAGE_SIZE } from "@/src/_constants";
+import { EXPECT_FORMAT, IMAGE_AI_RESOLUTION } from "@/src/_constants";
 import { compresFromFile } from "@/src/actions/compress";
+import { getImageSize } from "@/src/services/getImageSize";
 
 export type CommonPromptProps = {
   onQuerySubmit: (ev: FormEvent, options?: ChatRequestOptions) => void;
@@ -63,29 +64,21 @@ const RenderedPromtForm: FC<
   const onSubmit: FormEventHandler = async (ev) => {
     ev.preventDefault();
 
-    // const file = Array.from(files ?? [])[0];
-    // const compressed = await compresFromFile(await file.arrayBuffer());
-    // console.log({ compressed });
-    // const compressedFile = new File([compressed], "New FILE");
-    // console.log(compressedFile);
-    // const testImg = document.createElement("img");
-    // const url = URL.createObjectURL(compressedFile);
-    // testImg.src = url;
-    // document.getElementById("test-files")?.appendChild(testImg);
-
     const dataTransfer = new DataTransfer();
 
     await Promise.all(
       Array.from(files ?? []).map(async (file) => {
         let processedFile = file;
-        if (file.size > MAX_IMAGE_SIZE * 1000) {
-          console.log(file.size);
+        const { width, height } = await getImageSize(file);
+        if (
+          width > IMAGE_AI_RESOLUTION.width ||
+          height > IMAGE_AI_RESOLUTION.heigh
+        ) {
           const compressed = await compresFromFile(await file.arrayBuffer());
           processedFile = new File([compressed], file.name, {
             type: `image/${EXPECT_FORMAT}`,
           });
         }
-        console.log({ processedFile });
         dataTransfer.items.add(processedFile);
       })
     );

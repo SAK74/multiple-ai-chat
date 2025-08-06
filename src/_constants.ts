@@ -4,6 +4,11 @@
 export const EXPECT_FORMAT: "webp" | "jpeg" | "png" | "tiff" | "gif" = "webp";
 
 /**
- * @description Max image size without decompression in Kb
+ * @description Image resolution to save to db
  */
-export const MAX_IMAGE_SIZE = 100;
+export const IMAGE_DB_RESOLUTION = { width: 160, heigh: 160 };
+
+/**
+ * @description Image resolution to send to provider
+ */
+export const IMAGE_AI_RESOLUTION = { width: 800, heigh: 800 };

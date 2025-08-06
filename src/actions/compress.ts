@@ -1,9 +1,13 @@
 "use server";
 
-import { EXPECT_FORMAT } from "@/src/_constants";
+import {
+  EXPECT_FORMAT,
+  IMAGE_AI_RESOLUTION,
+  IMAGE_DB_RESOLUTION,
+} from "@/src/_constants";
 import sharp from "sharp";
 
-export async function compressFRomDataUrl(dataUrl: string, resize?: boolean) {
+export async function compressFRomDataUrl(dataUrl: string) {
   const matches = dataUrl.match(/^data:image\/(.+);base64,(.+)$/);
   if (!matches) {
     throw Error("Wrong image data url");
@@ -11,9 +15,10 @@ export async function compressFRomDataUrl(dataUrl: string, resize?: boolean) {
   const sharpInst = sharp(Buffer.from(matches[2], "base64"));
 
   const resBuffer = await sharpInst
-    .resize(160, 160, {
-      fit: "contain",
-      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    .resize({
+      ...IMAGE_DB_RESOLUTION,
+      fit: "inside",
+      withoutEnlargement: true,
     })
     .webp()
     .toBuffer();
@@ -25,5 +30,11 @@ export async function compressFRomDataUrl(dataUrl: string, resize?: boolean) {
 }
 
 export async function compresFromFile(arrayBUffer: ArrayBuffer) {
-  return await sharp(arrayBUffer).webp().toBuffer();
+  return await sharp(arrayBUffer)
+    .resize({
+      ...IMAGE_AI_RESOLUTION,
+      withoutEnlargement: true,
+    })
+    .webp()
+    .toBuffer();
 }
