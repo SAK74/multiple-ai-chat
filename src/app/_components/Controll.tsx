@@ -1,14 +1,21 @@
+"use client";
+
 import { cn } from "@/src/lib/utils";
 import type { FC, PropsWithChildren } from "react";
 import { SettingsIcon } from "lucide-react";
 import { ThemeChanger } from "./ThemeChanger";
-import { SetupForm, SetupProps } from "./SetupForm";
+import { SetupForm } from "./SetupForm";
 import { Button } from "@/src/components/ui/button";
 import { UserIcon } from "./UserIcon";
+import { useChatContext } from "./ChatProvider";
+import { Usage } from "./Usage";
+import type { User } from "next-auth";
 
 export const ControllPanel: FC<
-  PropsWithChildren<{ className?: string } & SetupProps>
-> = ({ className, children, setApiKey, apiKey }) => {
+  PropsWithChildren<{ className?: string; user?: User }>
+> = ({ className, user }) => {
+  const { apiKey, setApiKey } = useChatContext();
+
   return (
     <div
       className={cn(
@@ -16,7 +23,8 @@ export const ControllPanel: FC<
         className
       )}
     >
-      <div>{children}</div>
+      {!apiKey && <Usage className="" />}
+
       <div className="flex items-center *:cursor-pointer">
         <ThemeChanger />
         <SetupForm {...{ apiKey, setApiKey }}>
@@ -24,7 +32,7 @@ export const ControllPanel: FC<
             <SettingsIcon className="size-6" />
           </Button>
         </SetupForm>
-        <UserIcon />
+        <UserIcon user={user} />
       </div>
     </div>
   );

@@ -15,21 +15,11 @@ import type { ModelId, Provider } from "../types";
 
 import { FINISH_NOTIFICATION, TOKENS_LIMIT } from "../_constants";
 import { showOverdraft } from "../_tools/overdraftMessage";
-import {
-  ControllPanel,
-  PromptForm,
-  RenderMessages,
-  Spinner,
-  Usage,
-  useAssistant,
-  useUsage,
-} from ".";
-import { UserContext } from "./UserCtx";
+import { PromptForm, RenderMessages, Spinner, useAssistant, useUsage } from ".";
 import type { User } from "next-auth";
 import { revalidateChats } from "@/src/services/getUsersChats";
 import type { ChatRequestOptions } from "ai";
-import { useSidebar } from "@/src/components/ui/sidebar";
-import { cn } from "@/src/lib/utils";
+import { useChatContext } from "./ChatProvider";
 
 export const Chat: FC<{
   chatId?: string;
@@ -40,9 +30,10 @@ export const Chat: FC<{
   const { assystentDescription } = useAssistant();
   const [provider, setProvider] = useState<Provider>();
   const [model, setModel] = useState<ModelId | undefined>();
-  const [apiKey, setApiKey] = useState<string | undefined>();
 
   const initialMessages = use(initialMessagesPromise);
+  const { apiKey } = useChatContext();
+
   const {
     messages,
     handleSubmit,
@@ -129,24 +120,8 @@ export const Chat: FC<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatData?.length]);
 
-  const memoUser = useMemo(() => user, [user]);
-
-  const { isMobile, open: isSidebarOpen } = useSidebar();
-
   return (
-    <div
-      className={cn("px-6 w-full", {
-        "max-w-[calc(100%_-_var(--sidebar-width)_-_28px)]":
-          !isMobile && isSidebarOpen,
-        "max-w-[calc(100%_-_66px_-_28px)]": !isMobile && !isSidebarOpen,
-      })}
-    >
-      <UserContext value={{ user: memoUser }}>
-        <ControllPanel className="py-3 px-4" {...{ apiKey, setApiKey }}>
-          {!apiKey && <Usage className="" />}
-        </ControllPanel>
-      </UserContext>
-
+    <>
       <RenderMessages {...{ messages, setMessages, chatId }} />
       <div ref={bottomRef} className="h-4" />
       {status === "submitted" && (
@@ -175,6 +150,6 @@ export const Chat: FC<{
         }}
         className="sticky bottom-4 bg-background"
       />
-    </div>
+    </>
   );
 };

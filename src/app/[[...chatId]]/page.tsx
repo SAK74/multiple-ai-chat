@@ -8,7 +8,8 @@ import { randomUUID } from "node:crypto";
 import { db } from "@/src/lib/prisma";
 import { Message } from "ai";
 import dynamic from "next/dynamic";
-import { Spinner } from "../_components";
+import { ControllPanel, Spinner } from "../_components";
+import { ChatProvider } from "../_components/ChatProvider";
 
 const Chat = dynamic(() => import("../_components/Chat").then((m) => m.Chat), {
   loading: () => (
@@ -49,15 +50,24 @@ export default async function Page({
         .then((chat) => chat?.messages as Message[] | undefined)
     : Promise.resolve(undefined);
 
+  // const initialMessages = new Promise<undefined>((res) => {
+  //   setTimeout(() => {
+  //     res(undefined);
+  //   }, 2000);
+  // });
+
   return (
     <SidebarProvider defaultOpen={isSidebarOpened}>
       <SideBarComp userId={user?.id} chatId={chatId} />
       <SideBarTrigger />
-      <Chat
-        chatId={chatId}
-        user={user}
-        initialMessagesPromise={initialMessages}
-      />
+      <ChatProvider>
+        <ControllPanel className="py-3 px-4" user={user}></ControllPanel>
+        <Chat
+          chatId={chatId}
+          user={user}
+          initialMessagesPromise={initialMessages}
+        />
+      </ChatProvider>
     </SidebarProvider>
   );
 }
