@@ -10,11 +10,10 @@ import {
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 import { signIn, signOut } from "next-auth/react";
-import { useUser } from "./UserCtx";
+import type { FC } from "react";
+import type { User } from "next-auth";
 
-export const UserIcon = () => {
-  const { user } = useUser();
-
+export const UserIcon: FC<{ user?: User }> = ({ user }) => {
   const onLogin = () => {
     signIn("github", {});
   };

@@ -10,9 +10,7 @@ import { Analytics } from "@vercel/analytics/next";
 export const metadata: Metadata = {
   title: "AI-chat",
   description: "Custom AI chatbot",
-  icons: {
-    icon: "/chat-icon.png",
-  },
+  icons: "/chat-icon.png",
 };
 
 export default async function RootLayout({
