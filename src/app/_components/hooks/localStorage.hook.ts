@@ -1,26 +1,28 @@
 "use client";
 
-import { useCallback, useMemo, useSyncExternalStore } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
-const subscribe = (key: string) => {
-  return (cb: () => void) => {
-    const storageCb = (ev: StorageEvent) => {
-      if (ev.key === key) {
-        cb();
-      }
-    };
-    window.addEventListener("storage", storageCb);
-    return () => {
-      window.removeEventListener("storage", storageCb);
-    };
-  };
+const subscribers = new Map<string, Set<() => void>>();
+
+const getSubscribers = (key: string) => {
+  if (!subscribers.has(key)) {
+    subscribers.set(key, new Set());
+  }
+  return subscribers.get(key)!;
 };
 
 const useLocalStorage = (key: string) => {
-  const subscribed = useMemo(() => subscribe(key), [key]);
+  const subscribe = useCallback(
+    (cb: () => void) => {
+      const subs = getSubscribers(key);
+      subs.add(cb);
+      return () => subs.delete(cb);
+    },
+    [key]
+  );
 
   const storage = useSyncExternalStore(
-    subscribed,
+    subscribe,
     () => window.localStorage.getItem(key),
     () => ""
   );
@@ -28,6 +30,7 @@ const useLocalStorage = (key: string) => {
   const setStorage = useCallback(
     (value: string) => {
       window.localStorage.setItem(key, value);
+      getSubscribers(key).forEach((cb) => cb());
     },
     [key]
   );
@@ -52,7 +55,14 @@ const ASSIST_DESCRIPTION_KEY = "chat-assistant-description";
 export const useAssistant = () => {
   const [value, setValue] = useLocalStorage(ASSIST_DESCRIPTION_KEY);
   return {
-    assystentDescription: value ? value : undefined,
+    assystentDescription: value ?? undefined,
     setAssysDescription: setValue,
   };
+};
+
+const API_KEY = "chat-api-key";
+
+export const useApikey = () => {
+  const [apiKey, setApiKey] = useLocalStorage(API_KEY);
+  return { apiKey: apiKey ?? undefined, setApiKey };
 };

@@ -15,11 +15,17 @@ import type { ModelId, Provider } from "../types";
 
 import { FINISH_NOTIFICATION, TOKENS_LIMIT } from "../_constants";
 import { showOverdraft } from "../_tools/overdraftMessage";
-import { PromptForm, RenderMessages, Spinner, useAssistant, useUsage } from ".";
+import {
+  PromptForm,
+  RenderMessages,
+  Spinner,
+  useApikey,
+  useAssistant,
+  useUsage,
+} from ".";
 import type { User } from "next-auth";
 import { revalidateChats } from "@/src/services/getUsersChats";
 import type { ChatRequestOptions } from "ai";
-import { useChatContext } from "./ChatProvider";
 
 export const Chat: FC<{
   chatId?: string;
@@ -32,7 +38,7 @@ export const Chat: FC<{
   const [model, setModel] = useState<ModelId | undefined>();
 
   const initialMessages = use(initialMessagesPromise);
-  const { apiKey } = useChatContext();
+  const { apiKey } = useApikey();
 
   const {
     messages,

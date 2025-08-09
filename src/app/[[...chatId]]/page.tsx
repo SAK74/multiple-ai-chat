@@ -9,7 +9,7 @@ import { db } from "@/src/lib/prisma";
 import { Message } from "ai";
 import dynamic from "next/dynamic";
 import { ControllPanel, Spinner } from "../_components";
-import { ChatProvider } from "../_components/ChatProvider";
+import { ChatWrapper } from "../_components/ChatWrapper";
 
 const Chat = dynamic(() => import("../_components/Chat").then((m) => m.Chat), {
   loading: () => (
@@ -53,23 +53,21 @@ export default async function Page({
   // const initialMessages = new Promise<undefined>((res) => {
   //   setTimeout(() => {
   //     res(undefined);
-  //   }, 2000);
+  //   }, 5000);
   // });
 
   return (
     <SidebarProvider defaultOpen={isSidebarOpened}>
       <SideBarComp userId={user?.id} chatId={chatId} />
       <SideBarTrigger />
-      <ChatProvider>
+      <ChatWrapper>
         <ControllPanel className="py-3 px-4" user={user}></ControllPanel>
         <Chat
           chatId={chatId}
           user={user}
           initialMessagesPromise={initialMessages}
         />
-      </ChatProvider>
+      </ChatWrapper>
     </SidebarProvider>
   );
 }
-
-// export const dynamic = "force-dynamic";
