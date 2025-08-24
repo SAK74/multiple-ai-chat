@@ -52,6 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     const model = getModel({ provider, modelId, apiKey });
+    console.log(model.provider);
 
     const dataStreamResponse = createDataStreamResponse({
       async execute(dataStream) {

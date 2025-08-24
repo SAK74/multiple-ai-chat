@@ -11,7 +11,6 @@ export function filterAttachments(attachments: Attachment[]) {
     attachments.map(async (att) => {
       const buffer = bufferFromDataUrl(att.url);
       const { width, height } = await getImageSize(buffer);
-      console.log({ width, height });
 
       if (
         (width ?? 0) > IMAGE_AI_RESOLUTION.width ||

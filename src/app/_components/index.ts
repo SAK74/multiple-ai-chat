@@ -8,4 +8,4 @@ export * from "./ThemeChanger";
 export * from "./Usage";
 export * from "./Spinner";
 
-export * from "./hooks/localStorage.hook";
+export * from "../../hooks/localStorage.hook";
