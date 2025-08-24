@@ -1,5 +1,5 @@
 import type { FC, PropsWithChildren } from "react";
-import { useApikey, useAssistant } from "./hooks/localStorage.hook";
+import { useApikey, useAssistant } from "../../hooks/localStorage.hook";
 import {
   Dialog,
   DialogClose,

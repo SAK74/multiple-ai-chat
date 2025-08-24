@@ -1,8 +1,14 @@
 import { Button } from "@/src/components/ui/button";
 import { XCircleIcon } from "lucide-react";
-import type { Dispatch, FC, RefObject, SetStateAction } from "react";
+import {
+  memo,
+  type Dispatch,
+  type FC,
+  type RefObject,
+  type SetStateAction,
+} from "react";
 
-export const AttachedImages: FC<{
+export const RenderedImages: FC<{
   files: FileList | null;
   setFiles: Dispatch<SetStateAction<FileList | null>>;
   attachmentsRef: RefObject<Set<string>>;
@@ -69,3 +75,5 @@ export const AttachedImages: FC<{
     </div>
   );
 };
+
+export const AttachedImages = memo(RenderedImages);

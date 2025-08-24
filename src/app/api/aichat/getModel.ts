@@ -15,8 +15,6 @@ export function getModel({
   modelId,
   apiKey,
 }: GetModelParams): LanguageModel {
-  console.log("In Get model: ", { apiKey: Boolean(apiKey), provider, modelId });
-
   if (apiKey) {
     switch (provider) {
       case "openai":
