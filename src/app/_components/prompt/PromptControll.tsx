@@ -1,4 +1,4 @@
-import { type FC, type PropsWithChildren } from "react";
+import { memo, type FC, type PropsWithChildren } from "react";
 import { ModelSelector } from "../ModelSelector";
 import type { CommonPromptProps } from "./";
 import { BanIcon, BrushCleaningIcon, RefreshCcwIcon } from "lucide-react";
@@ -8,23 +8,12 @@ import { Button } from "@/src/components/ui/button";
 import { cn } from "@/src/lib/utils";
 import { useSession } from "next-auth/react";
 
-export const PromptControll: FC<
+const RenderedPromptControll: FC<
   PropsWithChildren<
     Omit<CommonPromptProps, "onQuerySubmit"> &
-      Pick<UseChatHelpers, "reload" | "setMessages" | "status">
+      Pick<UseChatHelpers, "reload" | "setMessages" | "status" | "stop">
   >
-> = ({
-  children,
-  className,
-  provider,
-  setProvider,
-  model,
-  setModel,
-  isActive,
-  reload,
-  setMessages,
-  status,
-}) => {
+> = ({ children, className, isActive, reload, setMessages, status, stop }) => {
   const { data } = useSession();
   return (
     <div
@@ -33,14 +22,7 @@ export const PromptControll: FC<
         className
       )}
     >
-      <ModelSelector
-        provider={provider}
-        setProvider={setProvider}
-        className="rounded-lg border"
-        model={model}
-        setModel={setModel}
-        isActive={isActive}
-      />
+      <ModelSelector className="rounded-lg border" isActive={isActive} />
       <div className="!bg-transparent grow flex justify-start">
         {/* attachments panel */}
         {children}
@@ -89,3 +71,5 @@ export const PromptControll: FC<
     </div>
   );
 };
+
+export const PromptControll = memo(RenderedPromptControll);

@@ -3,16 +3,13 @@
 import { Textarea } from "@/src/components/ui/textarea";
 import {
   type FormEvent,
-  memo,
   useRef,
   useState,
   useId,
-  type Dispatch,
   type FC,
-  type SetStateAction,
   FormEventHandler,
+  useMemo,
 } from "react";
-import type { ModelId, Provider } from "../../types";
 import { Button } from "@/src/components/ui/button";
 import { PaperclipIcon, SendHorizonalIcon } from "lucide-react";
 import type { UseChatHelpers } from "@ai-sdk/react";
@@ -23,33 +20,31 @@ import { AttachedImages, PromptControll } from ".";
 
 export type CommonPromptProps = {
   onQuerySubmit: (ev: FormEvent, options?: ChatRequestOptions) => void;
-  provider?: Provider;
-  setProvider: Dispatch<SetStateAction<Provider | undefined>>;
-  model?: ModelId;
-  setModel: Dispatch<SetStateAction<ModelId | undefined>>;
   isActive: boolean;
   className?: string;
 };
 
-const RenderedPromtForm: FC<
+export const PromptForm: FC<
   CommonPromptProps &
     Pick<
       UseChatHelpers,
-      "input" | "handleInputChange" | "reload" | "setMessages" | "status"
+      | "input"
+      | "handleInputChange"
+      | "reload"
+      | "setMessages"
+      | "status"
+      | "stop"
     >
 > = ({
   input,
   onQuerySubmit,
   handleInputChange,
-  provider,
-  setProvider,
-  model,
-  setModel,
   isActive,
   reload,
   setMessages,
   status,
   className,
+  stop,
 }) => {
   const inpuFileRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<FileList | null>(null);
@@ -60,7 +55,6 @@ const RenderedPromtForm: FC<
 
   const onSubmit: FormEventHandler = async (ev) => {
     ev.preventDefault();
-
     onQuerySubmit(ev, {
       ...(files?.length && { experimental_attachments: files }),
     });
@@ -75,6 +69,41 @@ const RenderedPromtForm: FC<
     });
     attachmentsRef.current.clear();
   };
+
+  const attachmentsButton = useMemo(
+    () => (
+      <>
+        <Tooltip label="Attach image">
+          <label htmlFor={`file-${reactId}`}>
+            <PaperclipIcon className="size-6 p-1 cursor-pointer rounded-lg bg-accent" />
+          </label>
+        </Tooltip>
+        <input
+          accept="image/*"
+          id={`file-${reactId}`}
+          type="file"
+          multiple
+          className="hidden"
+          ref={inpuFileRef}
+          onChange={({ target: { files } }) => {
+            setFiles((prevFiles) => {
+              const existingFiles = new Set();
+              const dataTransfer = new DataTransfer();
+              [...(prevFiles ?? []), ...(files ?? [])].forEach((file) => {
+                const key = `${file.name}-${file.lastModified}`;
+                if (!existingFiles.has(key)) {
+                  dataTransfer.items.add(file);
+                }
+                existingFiles.add(key);
+              });
+              return dataTransfer.files;
+            });
+          }}
+        />
+      </>
+    ),
+    [reactId]
+  );
 
   return (
     <form
@@ -122,49 +151,16 @@ const RenderedPromtForm: FC<
       <PromptControll
         {...{
           isActive,
-          provider,
-          setProvider,
-          model,
-          setModel,
+
           reload,
           setMessages,
           status,
+          stop,
         }}
         className="absolute -bottom-3 z-10"
       >
-        <>
-          {/* attchments */}
-          <Tooltip label="Attach image">
-            <label htmlFor={`file-${reactId}`}>
-              <PaperclipIcon className="size-6 p-1 cursor-pointer rounded-lg bg-accent" />
-            </label>
-          </Tooltip>
-          <input
-            accept="image/*"
-            id={`file-${reactId}`}
-            type="file"
-            multiple
-            className="hidden"
-            ref={inpuFileRef}
-            onChange={({ target: { files } }) => {
-              setFiles((prevFiles) => {
-                const existingFiles = new Set();
-                const dataTransfer = new DataTransfer();
-                [...(prevFiles ?? []), ...(files ?? [])].forEach((file) => {
-                  const key = `${file.name}-${file.lastModified}`;
-                  if (!existingFiles.has(key)) {
-                    dataTransfer.items.add(file);
-                  }
-                  existingFiles.add(key);
-                });
-                return dataTransfer.files;
-              });
-            }}
-          />
-        </>
+        {attachmentsButton}
       </PromptControll>
     </form>
   );
 };
-
-export const PromptForm = memo(RenderedPromtForm);

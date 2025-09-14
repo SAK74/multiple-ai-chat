@@ -1,3 +1,5 @@
+import { Provider } from "./app/types";
+
 /**
  * @description Output format for decompressed files
  */
@@ -12,3 +14,5 @@ export const IMAGE_DB_RESOLUTION = { width: 160, heigh: 160 } as const;
  * @description Image resolution to send to provider
  */
 export const IMAGE_AI_RESOLUTION = { width: 800, heigh: 800 } as const;
+
+export const DEFAULT_PROVIDER: Provider = "openai";
