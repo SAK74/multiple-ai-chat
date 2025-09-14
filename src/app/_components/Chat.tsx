@@ -11,7 +11,6 @@ import {
   useRef,
   useState,
 } from "react";
-import type { ModelId, Provider } from "../types";
 
 import { FINISH_NOTIFICATION, TOKENS_LIMIT } from "../_constants";
 import { showOverdraft } from "../_tools/overdraftMessage";
@@ -21,6 +20,8 @@ import {
   Spinner,
   useApikey,
   useAssistant,
+  useModel,
+  useProvider,
   useUsage,
 } from ".";
 import type { User } from "next-auth";
@@ -34,8 +35,8 @@ export const Chat: FC<{
 }> = ({ chatId, user, initialMessagesPromise }) => {
   const { usage, setUsage } = useUsage();
   const { assystentDescription } = useAssistant();
-  const [provider, setProvider] = useState<Provider>();
-  const [model, setModel] = useState<ModelId | undefined>();
+  const { provider } = useProvider();
+  const { model } = useModel();
 
   const initialMessages = use(initialMessagesPromise);
   const { apiKey } = useApikey();
@@ -51,6 +52,7 @@ export const Chat: FC<{
     input,
     handleInputChange,
     reload,
+    stop,
   } = useChat({
     api: "/api/aichat",
     id: chatId,
@@ -147,12 +149,9 @@ export const Chat: FC<{
           status,
           reload,
           setMessages,
-          provider,
-          setProvider,
-          model,
-          setModel,
           isActive,
           onQuerySubmit,
+          stop,
         }}
         className="sticky bottom-4 bg-background"
       />

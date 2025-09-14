@@ -10,6 +10,7 @@ import rehypeHighlight from "rehype-highlight";
 import { MarkDownPre } from "./MarkdownPreComponent";
 import { Tooltip } from "@/src/components/Tooltip";
 import { Trash2Icon } from "lucide-react";
+import geminiIcon from "@/src/assets/Google-gemini-icon.svg";
 
 const logos: {
   [k in Provider]: {
@@ -19,6 +20,7 @@ const logos: {
 } = {
   openai: { icon: gptLogo, className: "dark:invert" },
   anthropic: { icon: claudeLogo },
+  gemini: { icon: geminiIcon },
 };
 
 const RenderedMessage: FC<{

@@ -9,7 +9,7 @@ import { Button } from "@/src/components/ui/button";
 import { UserIcon } from "./UserIcon";
 import { Usage } from "./Usage";
 import type { User } from "next-auth";
-import { useApikey } from "./hooks/localStorage.hook";
+import { useApikey } from "../../hooks/localStorage.hook";
 
 export const ControllPanel: FC<
   PropsWithChildren<{ className?: string; user?: User }>
