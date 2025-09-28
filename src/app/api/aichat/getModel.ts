@@ -25,7 +25,7 @@ export function getModel({
         );
       case "gemini":
         return createGoogleGenerativeAI({ apiKey })(
-          modelId ?? "gemini-1.5-flash"
+          modelId ?? "gemini-2.0-flash"
         ) as unknown as LanguageModel;
       default:
         return openai("gpt-3.5-turbo");
