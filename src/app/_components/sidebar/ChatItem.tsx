@@ -27,6 +27,8 @@ import {
   type FC,
   type FormEventHandler,
   useOptimistic,
+  useRef,
+  useEffect,
   useState,
   useTransition,
 } from "react";
@@ -39,6 +41,8 @@ export const ChatItem: FC<{
   chatId?: string;
 }> = ({ chat, chatId }) => {
   const { replace } = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const onRemoveClick = async () => {
     await removeChatById(chat.id);
     revalidateChats();
@@ -59,6 +63,27 @@ export const ChatItem: FC<{
   );
 
   const [isUpdating, startTransition] = useTransition();
+
+  useEffect(() => {
+    const handleClickOutside = ({ target }: MouseEvent) => {
+      if (isEditMode && target !== inputRef.current) {
+        const isDropdownMenuItem =
+          target instanceof Element && target.closest('[role="menuitem"]');
+        if (!isDropdownMenuItem) {
+          setIsEditMode(false);
+        }
+      }
+    };
+
+    if (isEditMode) {
+      inputRef.current?.focus();
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isEditMode]);
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (ev) => {
     ev.preventDefault();
@@ -119,9 +144,7 @@ export const ChatItem: FC<{
           <Input
             name="newName"
             defaultValue={chat.name ?? undefined}
-            ref={(input) => {
-              input?.focus();
-            }}
+            ref={inputRef}
           />
         </form>
       )}
