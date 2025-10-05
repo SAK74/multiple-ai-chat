@@ -31,6 +31,7 @@ import {
   useEffect,
   useState,
   useTransition,
+  useId,
 } from "react";
 import { Spinner } from "../Spinner";
 import { useRouter } from "next/navigation";
@@ -64,11 +65,13 @@ export const ChatItem: FC<{
 
   const [isUpdating, startTransition] = useTransition();
 
+  const menuId = `menu_${useId()}`;
+
   useEffect(() => {
     const handleClickOutside = ({ target }: MouseEvent) => {
       if (isEditMode && target !== inputRef.current) {
         const isDropdownMenuItem =
-          target instanceof Element && target.closest('[role="menuitem"]');
+          target instanceof Element && target.closest(`#${menuId}`);
         if (!isDropdownMenuItem) {
           setIsEditMode(false);
         }
@@ -77,13 +80,13 @@ export const ChatItem: FC<{
 
     if (isEditMode) {
       inputRef.current?.focus();
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("click", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
-  }, [isEditMode]);
+  }, [isEditMode, menuId]);
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (ev) => {
     ev.preventDefault();
@@ -122,7 +125,7 @@ export const ChatItem: FC<{
                   <EllipsisIcon className="hidden group-hover/menu-item:block" />
                 </SidebarMenuAction>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
+              <DropdownMenuContent id={menuId}>
                 <DropdownMenuItem onClick={onEditClick}>
                   <PencilIcon />
                   <span>Edit title</span>
