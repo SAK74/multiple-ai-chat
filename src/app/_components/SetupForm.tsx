@@ -1,5 +1,5 @@
-import type { Dispatch, FC, PropsWithChildren, SetStateAction } from "react";
-import { useAssistant } from "./hooks/localStorage.hook";
+import type { FC, PropsWithChildren } from "react";
+import { useApikey, useAssistant } from "../../hooks/localStorage.hook";
 import {
   Dialog,
   DialogClose,
@@ -14,17 +14,9 @@ import { Textarea } from "@/src/components/ui/textarea";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 
-export type SetupProps = {
-  apiKey?: string;
-  setApiKey: Dispatch<SetStateAction<string | undefined>>;
-};
-
-export const SetupForm: FC<PropsWithChildren<SetupProps>> = ({
-  apiKey,
-  setApiKey,
-  children,
-}) => {
+export const SetupForm: FC<PropsWithChildren> = ({ children }) => {
   const { assystentDescription, setAssysDescription } = useAssistant();
+  const { apiKey, setApiKey } = useApikey();
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>

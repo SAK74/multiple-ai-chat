@@ -19,9 +19,8 @@ const toastType: ExternalToast = {
 export const dropToast = (
   message: Parameters<(typeof sonner)["success"]>[0],
   type: SonnerTypes,
-  description?: string,
   params?: ExternalToast
 ) => {
   const toast = sonner[type];
-  toast(message, { ...toastType, description, ...params });
+  toast(message, { ...toastType, ...params });
 };

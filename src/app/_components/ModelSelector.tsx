@@ -1,11 +1,15 @@
-import { type FC } from "react";
-import { ModelId, type Provider } from "../types";
+"use client";
+
+import { type FC, memo } from "react";
+import type { GoogleGenerativeAIModelId, ModelId, Provider } from "../types";
 import { cn } from "@/src/lib/utils";
 import type { OpenAIChatModelId } from "@ai-sdk/openai/internal";
 import type { AnthropicMessagesModelId } from "@ai-sdk/anthropic/internal";
 import { Select } from "@/src/components/Select";
+import { DEFAULT_PROVIDER } from "@/src/_constants";
+import { useModel, useProvider } from "@/src/hooks/localStorage.hook";
 
-const providers: Provider[] = ["openai", "anthropic"];
+const providers: Provider[] = ["openai", "anthropic", "gemini"];
 
 const openAiModels: OpenAIChatModelId[] = [
   "gpt-3.5-turbo",
@@ -29,28 +33,31 @@ const anthropicModels: AnthropicMessagesModelId[] = [
   "claude-3-opus-latest",
 ];
 
+const geminiMOdels: GoogleGenerativeAIModelId[] = [
+  // "gemini-1.5-flash",
+  // "gemini-1.5-pro",
+  "gemini-2.0-flash",
+  "gemini-2.0-flash-lite",
+  "gemini-2.5-flash",
+  "gemini-2.5-pro",
+];
+
 const models: {
   [k in Provider]: (OpenAIChatModelId | AnthropicMessagesModelId)[];
 } = {
   openai: openAiModels,
   anthropic: anthropicModels,
+  gemini: geminiMOdels,
 };
 
-export const ModelSelector: FC<{
-  provider?: Provider;
-  setProvider: (provider: Provider) => void;
+const DefaultModelSelector: FC<{
   className?: string;
-  model?: ModelId;
-  setModel: (model?: ModelId) => void;
   isActive: boolean;
-}> = ({
-  className,
-  provider = Object.keys(models)[0] as Provider,
-  setProvider,
-  model,
-  setModel,
-  isActive,
-}) => {
+}> = ({ className, isActive }) => {
+  const { provider: storedProvider, setProvider } = useProvider();
+  const provider = storedProvider ?? DEFAULT_PROVIDER;
+  const { model, setModel } = useModel();
+
   return (
     <div className={cn("flex gap-2", className)}>
       <Select
@@ -59,16 +66,24 @@ export const ModelSelector: FC<{
         value={provider}
         options={providers}
         onChange={(value) => {
+          if (!value) {
+            return;
+          }
           setProvider(value as Provider);
+          setModel(models[value as Provider][0]);
         }}
         disabled={!isActive}
         size="xs"
       />
 
       <Select
-        value={models[provider].includes(model!) ? model : undefined}
+        value={models[provider]?.includes(model!) ? model : undefined}
         onChange={(value) => {
-          setModel(value ? (value as ModelId) : undefined);
+          if (!value) {
+            return;
+          }
+
+          setModel(value as ModelId);
         }}
         disabled={!isActive}
         options={models[provider]}
@@ -78,3 +93,5 @@ export const ModelSelector: FC<{
     </div>
   );
 };
+
+export const ModelSelector = memo(DefaultModelSelector);

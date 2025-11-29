@@ -1,22 +1,30 @@
+"use client";
+
 import { cn } from "@/src/lib/utils";
-import type { FC, PropsWithChildren } from "react";
+import { type FC, type PropsWithChildren } from "react";
 import { SettingsIcon } from "lucide-react";
 import { ThemeChanger } from "./ThemeChanger";
-import { Avatar } from "@/src/components/Avatar";
-import { SetupForm, SetupProps } from "./SetupForm";
+import { SetupForm } from "./SetupForm";
 import { Button } from "@/src/components/ui/button";
+import { UserIcon } from "./UserIcon";
+import { Usage } from "./Usage";
+import type { User } from "next-auth";
+import { useApikey } from "../../hooks/localStorage.hook";
 
 export const ControllPanel: FC<
-  PropsWithChildren<{ className?: string } & SetupProps>
-> = ({ className, children, setApiKey, apiKey }) => {
+  PropsWithChildren<{ className?: string; user?: User }>
+> = ({ className, user }) => {
+  const { apiKey, setApiKey } = useApikey();
+
   return (
     <div
       className={cn(
-        "flex text-right justify-between mr-4 items-center sticky top-0",
+        "flex text-right justify-between items-center sticky top-0 bg-transparent backdrop-blur-sm z-10",
         className
       )}
     >
-      <div>{children}</div>
+      <div>{!apiKey && <Usage className="" />}</div>
+
       <div className="flex items-center *:cursor-pointer">
         <ThemeChanger />
         <SetupForm {...{ apiKey, setApiKey }}>
@@ -24,7 +32,7 @@ export const ControllPanel: FC<
             <SettingsIcon className="size-6" />
           </Button>
         </SetupForm>
-        <Avatar />
+        <UserIcon user={user} />
       </div>
     </div>
   );

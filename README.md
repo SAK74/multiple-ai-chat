@@ -20,3 +20,13 @@ In further I plan among others:
 - maintain prefernces and keys in external DB (the keys storage comes with encoding/decoding issue ofc)
 
 Generally there are a lot of features to implement (e.g. handling attachments, voice implementation and more over...). So looks like I won't be bored any time soon 😎
+
+#### Progress
+
+Steps realized
+
+- display markdown format for code parts
+- simply authorization
+- chat history for logged users
+- save chat history in db
+- attaching images and compression for sending to provider and saving to db

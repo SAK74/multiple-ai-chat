@@ -1,62 +1,123 @@
-import { createDataStreamResponse, Message, streamText } from "ai";
+import {
+  appendClientMessage,
+  appendResponseMessages,
+  convertToCoreMessages,
+  createDataStreamResponse,
+  type Message,
+  streamText,
+} from "ai";
 import { NextRequest } from "next/server";
 import { getModel } from "./getModel";
 import { Provider } from "../../types";
+import { updateChat } from "./updateChat";
+import { db } from "@/src/lib/prisma";
+import { retrieveChatMessages } from "./retrieveChat";
+import { FINISH_NOTIFICATION } from "../../_constants";
+import { filterAttachments } from "./filterMessageAttachments";
 
 export async function POST(request: NextRequest) {
   try {
-    // throw Error("New Test error");
-    // console.log("cookies: ", request.cookies);
-
-    const {
-      messages,
-      system,
-      provider = "openai",
-      model: modelId,
-      apiKey,
-    } = (await request.json()) as {
-      messages: Message[];
+    const params = (await request.json()) as {
+      messages?: Message[];
       system?: string;
       provider?: Provider;
       model?: string;
       apiKey?: string;
+      id?: string;
+      userId?: string;
+      message: Message;
     };
-    console.log({
-      // messages: JSON.stringify(messages),
+    const {
       system,
-      provider,
-      modelId,
+      provider = "openai",
+      model: modelId,
       apiKey,
-    });
+      id,
+      userId,
+      message,
+    } = params;
+    let { messages } = params;
+
+    if (process.env.NODE_ENV !== "production") {
+      console.log({
+        // messages: JSON.stringify(messages),
+        message,
+        system,
+        provider,
+        modelId,
+        apiKey,
+        id,
+        userId,
+      });
+    }
+
     const model = getModel({ provider, modelId, apiKey });
+    console.log(model.provider);
 
     const dataStreamResponse = createDataStreamResponse({
       async execute(dataStream) {
         dataStream.writeData("Initiation..");
         dataStream.writeMessageAnnotation({ provider });
-        const test = await new Promise<string>((resolve) => {
-          setTimeout(() => {
-            resolve("Test phase...");
-          }, 1000);
-        });
-        dataStream.writeData(test);
+
+        if (id && userId) {
+          dataStream.writeData("Retrieve chat history..");
+          const prevMessages = (await retrieveChatMessages(
+            id,
+            userId
+          )) as unknown as Message[];
+          messages ??= appendClientMessage({
+            messages: prevMessages ?? [],
+            message: {
+              ...message,
+              ...(message.experimental_attachments && {
+                experimental_attachments: await filterAttachments(
+                  message.experimental_attachments
+                ),
+              }),
+            },
+          });
+        }
+
+        dataStream.writeData("Processing");
         const result = streamText({
           model,
           ...(system && { system }),
-          messages,
-          onFinish: () => {
-            dataStream.writeData("Finished");
+          messages: convertToCoreMessages(messages!),
+          onFinish: async ({ response }) => {
+            // console.log("Response: ", JSON.stringify(response.messages));
+            dataStream.writeData("Saving to db");
+            // update db
+            if (id && userId) {
+              const isOldChat = await db.chat.findUnique({ where: { id } });
+              if (!isOldChat) {
+                dataStream.writeData({ newChat: true });
+              }
+              await updateChat(
+                userId,
+                id,
+                ...appendResponseMessages({
+                  messages: [message],
+                  responseMessages: response.messages,
+                }).map((mess) => ({
+                  ...mess,
+                  ...(mess.role === "assistant" && {
+                    annotations: [{ provider }],
+                  }),
+                }))
+              );
+            }
+
+            dataStream.writeData(FINISH_NOTIFICATION);
           },
-          // onStepFinish: () => {
-          //   console.log("Step finished");
-          // },
         });
-        result.usage.then((usage) => {
-          console.log({ usage });
-        });
-        result.response.then(({ modelId }) => {
-          console.log({ modelId });
-        });
+        if (process.env.NODE_ENV !== "production") {
+          result.usage.then((usage) => {
+            console.log({ usage });
+          });
+          result.response.then(({ modelId }) => {
+            console.log({ modelId });
+          });
+        }
 
         result.mergeIntoDataStream(dataStream);
       },
@@ -74,19 +135,10 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // const textStream = result.textStream;
-    // console.log({ textStream });
-
-    // result.text.then((text) => {
-    //   console.log({ text });
-    // });
-
     return dataStreamResponse;
   } catch (error) {
     console.log(error);
     let message = "Unknown error...";
-    if (error instanceof Error) {
-    }
     switch (true) {
       case error instanceof Error:
         message = error.message;
