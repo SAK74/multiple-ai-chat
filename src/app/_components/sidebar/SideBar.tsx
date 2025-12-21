@@ -51,7 +51,7 @@ export const SideBarComp: FC<{ userId?: string; chatId?: string }> = async ({
             disabled
           >
             <FileQuestionMarkIcon />
-            <p>You must be llogged to see chat history...</p>
+            <p>You must be logged in to see chat history...</p>
           </SidebarMenuButton>
         )}
       </SidebarContent>

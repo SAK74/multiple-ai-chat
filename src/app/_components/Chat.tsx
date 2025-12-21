@@ -59,11 +59,14 @@ export const Chat: FC<{
     sendExtraMessageFields: true,
     initialMessages,
     async onFinish(_, options) {
-      const summary = usage + options.usage.totalTokens;
-      setUsage(summary);
-      if (summary >= TOKENS_LIMIT) {
-        showOverdraft();
+      if (!apiKey) {
+        const summary = usage + options.usage.totalTokens;
+        setUsage(summary);
+        if (summary >= TOKENS_LIMIT) {
+          showOverdraft();
+        }
       }
+
       setStreamStatus(undefined);
     },
     body: {
