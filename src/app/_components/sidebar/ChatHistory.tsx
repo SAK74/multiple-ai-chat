@@ -9,9 +9,7 @@ export const ChatHistory: FC<{ userId?: string; chatId?: string }> = async ({
 }) => {
   let chats: (Chat & { messages: Message[] })[] = [];
   if (userId) {
-    const getUsersChats = await cachedUsersChats(userId);
-
-    chats = await getUsersChats(userId);
+    chats = await cachedUsersChats(userId);
   }
   return (
     <>
