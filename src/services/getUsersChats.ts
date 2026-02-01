@@ -12,7 +12,7 @@ export const getUsersChats = async (userId: string) => {
         orderBy: { created: "desc" },
       }),
     [userId],
-    { tags: ["chats"] }
+    { tags: ["chats"] },
   );
 
   const chats = await cachedChats(userId);
@@ -28,5 +28,5 @@ export const getUsersChats = async (userId: string) => {
 };
 
 export async function revalidateChats() {
-  revalidateTag("chats");
+  revalidateTag("chats", "max");
 }
