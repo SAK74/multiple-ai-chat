@@ -41,6 +41,45 @@ export const Chat: FC<{
   const initialMessages = use(initialMessagesPromise);
   const { apiKey } = useApikey();
 
+  const body = useMemo(
+    () => ({
+      system: assystentDescription,
+      provider,
+      model,
+      apiKey,
+      ...(user?.id && { userId: user.id }),
+    }),
+    [assystentDescription, provider, model, apiKey, user?.id],
+  );
+
+  const experimental_prepareRequestBody = useCallback(
+    ({ id, messages }: { id: string; messages: Message[] }) => ({
+      message: messages.at(-1),
+      system: assystentDescription,
+      provider,
+      model,
+      apiKey,
+      id,
+      ...(user?.id && { userId: user.id }),
+    }),
+    [assystentDescription, provider, model, apiKey, user?.id],
+  );
+
+  const onFinish = useCallback(
+    async (_: any, options: { usage: { totalTokens: number } }) => {
+      if (!apiKey) {
+        const summary = usage + options.usage.totalTokens;
+        setUsage(summary);
+        if (summary >= TOKENS_LIMIT) {
+          showOverdraft();
+        }
+      }
+
+      setStreamStatus(undefined);
+    },
+    [apiKey, usage, setUsage],
+  );
+
   const {
     messages,
     handleSubmit,
@@ -58,37 +97,9 @@ export const Chat: FC<{
     id: chatId,
     sendExtraMessageFields: true,
     initialMessages,
-    async onFinish(_, options) {
-      if (!apiKey) {
-        const summary = usage + options.usage.totalTokens;
-        setUsage(summary);
-        if (summary >= TOKENS_LIMIT) {
-          showOverdraft();
-        }
-      }
-
-      setStreamStatus(undefined);
-    },
-    body: {
-      system: assystentDescription,
-      provider,
-      model,
-      apiKey,
-      ...(user?.id && { userId: user.id }),
-    },
-    ...(user && {
-      experimental_prepareRequestBody({ id, messages }) {
-        return {
-          message: messages.at(-1),
-          system: assystentDescription,
-          provider,
-          model,
-          apiKey,
-          id,
-          ...(user?.id && { userId: user.id }),
-        };
-      },
-    }),
+    onFinish,
+    body,
+    ...(user && { experimental_prepareRequestBody }),
   });
 
   const isActive = useMemo(

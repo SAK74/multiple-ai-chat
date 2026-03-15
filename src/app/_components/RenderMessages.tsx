@@ -2,12 +2,12 @@ import type { Message, UIMessage } from "ai";
 import { memo, useCallback, type FC } from "react";
 
 import { removMessFromChat } from "@/src/actions/removeMessFromChat";
-import { MemoizedMessage } from "./Message";
+import { RenderedMessage } from "./Message";
 
 type RenderMessagesProps = {
   messages: UIMessage[];
   setMessages: (
-    messages: Message[] | ((messages: Message[]) => Message[])
+    messages: Message[] | ((messages: Message[]) => Message[]),
   ) => void;
   chatId?: string;
 };
@@ -24,7 +24,7 @@ const RenderedMessages: FC<RenderMessagesProps> = ({
         removMessFromChat(chatId, id);
       }
     },
-    [setMessages, chatId]
+    [setMessages, chatId],
   );
 
   return (
@@ -32,10 +32,10 @@ const RenderedMessages: FC<RenderMessagesProps> = ({
       {messages
         .sort(
           (a, b) =>
-            (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0)
+            (a.createdAt?.getTime() ?? 0) - (b.createdAt?.getTime() ?? 0),
         )
         .map((message) => (
-          <MemoizedMessage
+          <RenderedMessage
             key={message.id}
             message={message}
             onDelete={deleteMessage}

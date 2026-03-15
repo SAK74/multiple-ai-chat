@@ -23,7 +23,7 @@ const logos: {
   gemini: { icon: geminiIcon },
 };
 
-const RenderedMessage: FC<{
+export const RenderedMessage: FC<{
   message: UIMessage;
   onDelete: (id: Message["id"]) => void;
 }> = ({ message, onDelete }) => {
@@ -32,7 +32,7 @@ const RenderedMessage: FC<{
       typeof adnot === "object" &&
       adnot !== null &&
       "provider" in adnot &&
-      typeof (adnot as { provider: Provider }).provider === "string"
+      typeof (adnot as { provider: Provider }).provider === "string",
   )?.provider;
 
   return (
@@ -58,7 +58,7 @@ const RenderedMessage: FC<{
           {
             "border-solid bg-gray-300 max-w-3/4 dark:bg-gray-600":
               message.role === "user",
-          }
+          },
         )}
       >
         {message.parts.map((part, index) => {
@@ -113,4 +113,6 @@ const RenderedMessage: FC<{
   );
 };
 
-export const MemoizedMessage = memo(RenderedMessage);
+// export const MemoizedMessage = memo(RenderedMessage, (prev, next) => {
+//   return prev.message.id === next.message.id && prev.onDelete === next.onDelete;
+// });

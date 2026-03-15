@@ -1,4 +1,4 @@
-import { memo, type FC, type PropsWithChildren } from "react";
+import { type FC, type PropsWithChildren } from "react";
 import { ModelSelector } from "../ModelSelector";
 import type { CommonPromptProps } from "./";
 import { BanIcon, BrushCleaningIcon, RefreshCcwIcon } from "lucide-react";
@@ -19,7 +19,7 @@ const RenderedPromptControll: FC<
     <div
       className={cn(
         "w-full flex justify-between gap-2 px-3 *:bg-accent",
-        className
+        className,
       )}
     >
       <ModelSelector className="rounded-lg border" isActive={isActive} />
@@ -72,4 +72,4 @@ const RenderedPromptControll: FC<
   );
 };
 
-export const PromptControll = memo(RenderedPromptControll);
+export const PromptControll = RenderedPromptControll;
