@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate --no-engine && prisma migrate deploy",
-    "start:docker": "docker compose up"
+    "start:docker": "docker compose up",
+    "dev:vinext": "vinext dev",
+    "build:vinext": "vinext build",
+    "start:vinext": "vinext start"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.2.12",
@@ -49,12 +52,18 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitejs/plugin-rsc": "^0.5.24",
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
     "prisma": "^6.12.0",
+    "react-server-dom-webpack": "^19.2.5",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.5",
-    "typescript": "^5"
-  }
+    "typescript": "^5",
+    "vinext": "^0.0.44",
+    "vite": "^8.0.10"
+  },
+  "type": "module"
 }

@@ -1,5 +1,4 @@
 import { EXPECT_FORMAT } from "@/src/_constants";
-import sharp from "sharp";
 
 export function bufferFromDataUrl(data: string) {
   const matches = data.match(/^data:image\/(.+);base64,(.+)$/);
@@ -13,6 +12,7 @@ export async function compressFRomDataUrl(
   dataUrl: string,
   resolution: { width: number; heigh: number }
 ) {
+  const sharp = (await import("sharp")).default;
   const buffer = bufferFromDataUrl(dataUrl);
   const resBuffer = await sharp(buffer)
     .resize({
